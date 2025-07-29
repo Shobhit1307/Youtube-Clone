@@ -1,23 +1,19 @@
-// backend/controllers/authController.js
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-// Strong password regex: min 8 chars, uppercase, lowercase, number, special character
-const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
-const generateToken = (userId) =>
+const generateToken = userId =>
   jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
 export const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
 
-  if (!passwordRegex.test(password)) {
-    return res.status(400).json({
-      message:
-        'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.',
-    });
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'All fields are required' });
   }
+
+   
 
   const existing = await User.findOne({ email });
   if (existing) {
@@ -40,8 +36,11 @@ export const registerUser = async (req, res) => {
 
 export const authUser = async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
 
+  const user = await User.findOne({ email });
   if (!user) {
     return res.status(401).json({ message: 'No account found with this email' });
   }

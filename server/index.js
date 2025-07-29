@@ -18,7 +18,7 @@ await connectDB(process.env.MONGO_URI);
 app.use('/api/auth', authRoutes);
 app.use('/api/videos', videoRoutes);
 app.use('/api/channels', channelRoutes);
-app.use('/api/comments', commentRoutes);
+app.use('/api/videos/:videoId/comments', commentRoutes);
 
 app.get('/', (req, res) => res.json({ message: 'API is running...' }));
 

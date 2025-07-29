@@ -1,10 +1,13 @@
+// src/pages/AuthPage.jsx
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { registerUser, loginUser } from '../features/user/userSlice.js';
 import Header from '../components/Header.jsx';
+import { useNavigate } from 'react-router-dom';
 
 export default function AuthPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [mode, setMode] = useState('login');
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
 
@@ -13,8 +16,17 @@ export default function AuthPage() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (mode === 'login') await dispatch(loginUser(formData));
-    else await dispatch(registerUser(formData));
+    try {
+      if (mode === 'login') {
+        await dispatch(loginUser(formData)).unwrap();
+      } else {
+        await dispatch(registerUser(formData)).unwrap();
+      }
+      navigate('/');
+    } catch (err) {
+      // ✅ Removed toast.error here
+      console.error("Error:", err);
+    }
   };
 
   return (
@@ -48,6 +60,7 @@ export default function AuthPage() {
             value={formData.password}
             onChange={handleChange}
             required
+            autoComplete="current-password"
           />
           <button type="submit">{mode === 'login' ? 'Login' : 'Register'}</button>
         </form>

@@ -14,7 +14,22 @@ export const getVideos = async (req, res) => {
       .populate('uploader', 'username')
       .populate('channel', 'channelName');
 
-    res.json(videos);
+    const sanitized = videos.map(v => ({
+      _id: v._id,
+      title: v.title,
+      description: v.description,
+      videoUrl: v.videoUrl,
+      thumbnailUrl: v.thumbnailUrl,
+      category: v.category,
+      views: v.views,
+      uploadDate: v.uploadDate,
+      uploader: v.uploader,
+      channel: v.channel,
+      likes: v.likes.length,
+      dislikes: v.dislikes.length
+    }));
+
+    res.json(sanitized);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -31,7 +46,20 @@ export const getVideoById = async (req, res) => {
     video.views++;
     await video.save();
 
-    res.json(video);
+    res.json({
+      _id: video._id,
+      title: video.title,
+      description: video.description,
+      videoUrl: video.videoUrl,
+      thumbnailUrl: video.thumbnailUrl,
+      category: video.category,
+      views: video.views,
+      uploadDate: video.uploadDate,
+      uploader: video.uploader,
+      channel: video.channel,
+      likes: video.likes.length,
+      dislikes: video.dislikes.length
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -93,42 +121,34 @@ export const deleteVideo = async (req, res) => {
 
 // POST /api/videos/:id/like (auth required)
 export const likeVideo = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id);
-    if (!video) return res.status(404).json({ message: 'Video not found' });
+  const video = await Video.findById(req.params.id);
+  if (!video) return res.status(404).json({ message: 'Video not found' });
+  const userId = req.user._id.toString();
 
-    const userId = req.user._id.toString();
-    if (video.likes.includes(userId)) {
-      video.likes.pull(userId);
-    } else {
-      video.likes.push(userId);
-      video.dislikes.pull(userId);
-    }
-
-    await video.save();
-    res.json({ likes: video.likes.length, dislikes: video.dislikes.length });
-  } catch (err) {
-    res.status(500).json({ message: 'Could not like video', error: err.message });
+  if (video.likes.includes(userId)) {
+    video.likes.pull(userId);
+  } else {
+    video.likes.push(userId);
+    video.dislikes.pull(userId);
   }
+
+  await video.save();
+  res.json({ likes: video.likes.length, dislikes: video.dislikes.length });
 };
 
 // POST /api/videos/:id/dislike (auth required)
 export const dislikeVideo = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id);
-    if (!video) return res.status(404).json({ message: 'Video not found' });
+  const video = await Video.findById(req.params.id);
+  if (!video) return res.status(404).json({ message: 'Video not found' });
+  const userId = req.user._id.toString();
 
-    const userId = req.user._id.toString();
-    if (video.dislikes.includes(userId)) {
-      video.dislikes.pull(userId);
-    } else {
-      video.dislikes.push(userId);
-      video.likes.pull(userId);
-    }
-
-    await video.save();
-    res.json({ likes: video.likes.length, dislikes: video.dislikes.length });
-  } catch (err) {
-    res.status(500).json({ message: 'Could not dislike video', error: err.message });
+  if (video.dislikes.includes(userId)) {
+    video.dislikes.pull(userId);
+  } else {
+    video.dislikes.push(userId);
+    video.likes.pull(userId);
   }
+
+  await video.save();
+  res.json({ likes: video.likes.length, dislikes: video.dislikes.length });
 };

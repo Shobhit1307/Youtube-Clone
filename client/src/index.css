@@ -1,73 +1,145 @@
+/* Global reset & base styles */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, sans-serif; background: #ffffff; color: #333333; }
+body { font-family: 'Roboto', sans-serif; background: #f9f9f9; color: #202124; }
 a { text-decoration: none; color: inherit; }
-.loading { display: flex; align-items: center; justify-content: center; height: 100vh; }
-.header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f1f1f1; }
-.app-body { display: flex; }
-.main-content { flex: 1; padding: 1rem; }
-.video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
 
+/* Header / Navbar */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
-  background: #f1f1f1;
+  background: #fff;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e0e0e0;
 }
-
+.header a.logo { font-size: 1.5rem; font-weight: bold; }
 .header-search {
   display: flex;
   flex: 1;
+  max-width: 400px;
   margin: 0 1rem;
 }
-
 .header-search input {
   flex: 1;
   padding: 0.5rem;
   border: 1px solid #ccc;
+  border-radius: 2px 0 0 2px;
 }
-
 .header-search button {
   padding: 0.5rem 1rem;
-  border: none;
-  background: #ff0000;
-  color: #fff;
-}
-
-.header-auth {
-  margin-left: auto;
-}
-
-
-.video-wrapper {
-  position: relative;
-  margin-bottom: 1rem;
-}
-
-.delete-btn {
-  background: crimson;
+  background: #cc0000;
   color: white;
   border: none;
-  padding: 0.4rem 1rem;
-  margin-top: 0.5rem;
+  border-radius: 0 2px 2px 0;
+  cursor: pointer;
+}
+
+/* Layout */
+.app-body { display: flex; }
+.sidebar {
+  width: 220px;
+  background: #fff;
+  border-right: 1px solid #e0e0e0;
+  padding: 1rem;
+}
+.sidebar ul { list-style: none; }
+.sidebar li { padding: 0.5rem 0; }
+.sidebar li a { color: #202124; display: block; font-weight: 500; }
+.main-content { flex: 1; padding: 1rem; }
+
+/* Video Grid */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+/* Video Card */
+.video-card img {
+  width: 100%;
+  border-radius: 4px;
+}
+.video-card h4 {
+  font-size: 1rem;
+  margin: 0.5rem 0 0.2rem;
+}
+.video-card p {
+  font-size: 0.875rem;
+  color: #555;
+}
+
+/* Video Player Page */
+.main-content video {
+  width: 100%;
+  max-height: 480px;
+  border-radius: 4px;
+}
+.main-content h2 {
+  margin: 0.75rem 0 0.3rem;
+}
+.main-content p { margin-bottom: 1rem; }
+.main-content button {
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #cc0000;
+  background: white;
+  color: #cc0000;
   cursor: pointer;
   border-radius: 4px;
 }
+textarea {
+  width: 100%;
+  min-height: 4rem;
+  margin: 0.5rem 0;
+}
 
+/* Channel Page */
+.video-wrapper { position: relative; margin-bottom: 0.5rem; }
+.delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: crimson;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 3px;
+}
 
+/* Auth Page */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 300px;
+  margin: 1rem auto;
+}
+input, textarea {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+button[type="submit"] {
+  background: #cc0000;
+  color: white;
+  border: none;
+  padding: 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
-
-/* Mobile-first styles */
+/* Responsive Breakpoints */
 @media (max-width: 768px) {
   .sidebar { display: none; }
+  .header-search { display: none; }
   .app-body { flex-direction: column; }
-  .video-grid { grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); }
-  .header form { display: none; }
-  .header { justify-content: space-around; }
+  .video-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
 }
-
 @media (max-width: 480px) {
-  .video-card h4 { font-size: 0.9rem; }
+  .header { flex-wrap: wrap; justify-content: center; }
+  .header a.logo { margin-bottom: 0.5rem; }
   .main-content { padding: 0.5rem; }
+  .video-card h4 { font-size: 0.9rem; }
 }
-
