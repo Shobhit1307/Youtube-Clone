@@ -1,4 +1,3 @@
-// src/components/Header.jsx
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../features/user/userSlice.js';
@@ -23,7 +22,6 @@ export default function Header() {
   return (
     <header className="header">
       <Link to="/" className="logo">YouTubeClone</Link>
-
       {!hideSearch && (
         <form className="header-search" onSubmit={handleSearch}>
           <input
@@ -36,10 +34,14 @@ export default function Header() {
           <button type="submit">Search</button>
         </form>
       )}
-
       {userInfo ? (
         <div className="header-auth">
-          Hello, {userInfo.username}{' '}
+          <img
+            src={userInfo.avatar || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}
+            alt="avatar"
+            className="header-avatar"
+          />
+          <span>Hello, {userInfo.username}</span>
           <button onClick={() => { dispatch(logout()); navigate('/'); }}>
             Logout
           </button>

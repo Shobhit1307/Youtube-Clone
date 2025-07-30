@@ -7,7 +7,8 @@ import {
   updateVideo,
   deleteVideo,
   likeVideo,
-  dislikeVideo
+  dislikeVideo,
+  getTrending
 } from '../controllers/videoController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -18,6 +19,8 @@ router.get('/:id', getVideoById);
 router.post('/', protect, createVideo);
 router.put('/:id', protect, updateVideo);
 router.delete('/:id', protect, deleteVideo);
+router.get('/trending', getTrending);
+
 
 router.post('/:id/like', protect, likeVideo);
 router.post('/:id/dislike', protect, dislikeVideo);

@@ -58,3 +58,14 @@ export const authUser = async (req, res) => {
     token: generateToken(user._id),
   });
 };
+
+export const updateProfile = async (req, res) => {
+  const { username, avatar } = req.body;
+  const user = await User.findById(req.user._id);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  if (username) user.username = username;
+  if (avatar) user.avatar = avatar;
+  await user.save();
+  res.json({ username: user.username, avatar: user.avatar });
+};
+

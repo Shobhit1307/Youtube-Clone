@@ -1,4 +1,3 @@
-// src/pages/AuthPage.jsx
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { registerUser, loginUser } from '../features/user/userSlice.js';
@@ -9,7 +8,12 @@ export default function AuthPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [mode, setMode] = useState('login');
-  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    avatar: ''
+  });
 
   const handleChange = e =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,26 +28,34 @@ export default function AuthPage() {
       }
       navigate('/');
     } catch (err) {
-      // ✅ Removed toast.error here
-      console.error("Error:", err);
+      console.error('Error:', err);
     }
   };
 
   return (
     <>
       <Header />
-      <div className="main-content">
+      <div className="main-content auth-page">
         <h2>{mode === 'login' ? 'Sign In' : 'Register'}</h2>
         <form onSubmit={handleSubmit}>
           {mode === 'register' && (
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
+            <>
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                name="avatar"
+                placeholder="Avatar URL (optional)"
+                value={formData.avatar}
+                onChange={handleChange}
+              />
+            </>
           )}
           <input
             type="email"
@@ -64,9 +76,14 @@ export default function AuthPage() {
           />
           <button type="submit">{mode === 'login' ? 'Login' : 'Register'}</button>
         </form>
-        <p>
-          {mode === 'login' ? "Don't have an account?" : 'Already a user?'}{' '}
-          <button onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
+        <p className="toggle-mode">
+          {mode === 'login'
+            ? "Don't have an account?"
+            : 'Already a user?'}{' '}
+          <button
+            type="button"
+            onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+          >
             {mode === 'login' ? 'Register' : 'Login'}
           </button>
         </p>
