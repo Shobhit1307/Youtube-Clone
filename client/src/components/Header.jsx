@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../features/user/userSlice.js';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { persistor } from '../app/store.js';
+import apiClient from '../api/apiClient.js';
 import { getVideos } from '../features/videos/videosSlice.js';
 
 export default function Header() {
@@ -14,6 +16,13 @@ export default function Header() {
   const handleSearch = e => {
     e.preventDefault();
     dispatch(getVideos({ search: term, category: '' }));
+    navigate('/');
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    persistor.purge();
+    delete apiClient.defaults.headers.common.Authorization;
     navigate('/');
   };
 
@@ -42,9 +51,7 @@ export default function Header() {
             className="header-avatar"
           />
           <span>Hello, {userInfo.username}</span>
-          <button onClick={() => { dispatch(logout()); navigate('/'); }}>
-            Logout
-          </button>
+          <button onClick={handleLogout}>Logout</button>
         </div>
       ) : (
         <Link to="/auth" className="header-auth">Sign In</Link>

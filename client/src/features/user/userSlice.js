@@ -1,66 +1,54 @@
-// src/features/user/userSlice.js
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import apiClient from "../../api/apiClient.js";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { PURGE } from 'redux-persist';
+import apiClient from '../../api/apiClient.js';
 import { toast } from 'react-toastify';
 
-// Register thunk with rejectWithValue for proper error propagation
-export const registerUser = createAsyncThunk(
-  "user/register",
-  async (data, { rejectWithValue }) => {
-    try {
-      const response = await apiClient.post("/auth/register", data);
-      return response.data;
-    } catch (err) {
-      const message = err.response?.data?.message || err.message;
-      return rejectWithValue(message);
-    }
+// Register user thunk
+export const registerUser = createAsyncThunk('user/register', async (data, { rejectWithValue }) => {
+  try {
+    const res = await apiClient.post('/auth/register', data);
+    return res.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || err.message);
   }
-);
+});
 
-// Login thunk
-export const loginUser = createAsyncThunk(
-  "user/login",
-  async (data, { rejectWithValue }) => {
-    try {
-      const response = await apiClient.post("/auth/login", data);
-      return response.data;
-    } catch (err) {
-      const message = err.response?.data?.message || err.message;
-      return rejectWithValue(message);
-    }
+// Login user thunk
+export const loginUser = createAsyncThunk('user/login', async (data, { rejectWithValue }) => {
+  try {
+    const res = await apiClient.post('/auth/login', data);
+    return res.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || err.message);
   }
-);
-
-const initialState = {
-  userInfo: null
-};
+});
 
 const userSlice = createSlice({
-  name: "user",
-  initialState,
+  name: 'user',
+  initialState: { userInfo: null },
   reducers: {
-    logout: (state) => {
+    logout: state => {
       state.userInfo = null;
-      localStorage.removeItem("token");
     }
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
       .addCase(registerUser.fulfilled, (state, action) => {
         state.userInfo = action.payload;
-        localStorage.setItem("token", action.payload.token);
-        toast.success("Registered successfully!", { toastId: "register-success" });
+        toast.success('Registered successfully!');
       })
-      .addCase(registerUser.rejected, (_state, action) => {
-        toast.error(action.payload || action.error.message || "Registration failed", { toastId: "register-error" });
+      .addCase(registerUser.rejected, (_, action) => {
+        toast.error(action.payload || 'Registration failed');
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.userInfo = action.payload;
-        localStorage.setItem("token", action.payload.token);
-        toast.success("Logged in successfully!", { toastId: "login-success" });
+        toast.success('Logged in successfully!');
       })
-      .addCase(loginUser.rejected, (_state, action) => {
-        toast.error(action.payload || action.error.message || "Invalid credentials", { toastId: "login-error" });
+      .addCase(loginUser.rejected, (_, action) => {
+        toast.error(action.payload || 'Login failed');
+      })
+      .addCase(PURGE, state => {
+        state.userInfo = null;
       });
   }
 });

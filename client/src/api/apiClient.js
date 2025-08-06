@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { store } from '../app/store.js';
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:5000/api',
@@ -6,8 +7,12 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const token = store.getState().user.userInfo?.token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
+  }
   return config;
 });
 
