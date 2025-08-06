@@ -1,35 +1,38 @@
-// src/App.jsx
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-// Lazy-loaded pages
 const HomePage = lazy(() => import('./pages/HomePage.jsx'));
 const VideoPlayer = lazy(() => import('./pages/VideoPlayer.jsx'));
 const ChannelPage = lazy(() => import('./pages/ChannelPage.jsx'));
-const AuthPage = lazy(() => import('./pages/AuthPage.jsx'));
-const TrendingPage = lazy(() => import('./pages/TrendingPage.jsx'));
 const CreateChannelPage = lazy(() => import('./pages/CreateChannelPage.jsx'));
 const UploadVideoPage = lazy(() => import('./pages/UploadVideoPage.jsx'));
-// const EditVideoPage = lazy(() => import('./pages/EditVideoPage.jsx'));
+const TrendingPage = lazy(() => import('./pages/TrendingPage.jsx'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage.jsx'));
+const AuthPage = lazy(() => import('./pages/AuthPage.jsx'));
 
 export default function App() {
+  const { userInfo } = useSelector(state => state.user);
+
   return (
     <BrowserRouter>
-      <Suspense fallback={<div className="loading">Loading...</div>}>
+      <Suspense fallback={<div>Loading…</div>}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/video/:id" element={<VideoPlayer />} />
-          
           <Route path="/trending" element={<TrendingPage />} />
-          
-          <Route path="/channel/create" element={<CreateChannelPage />} />
-          <Route path="/channel/:id" element={<ChannelPage />} />
-          <Route path="/channel/:id/upload" element={<UploadVideoPage />} />
-          {/* <Route path="/channel/:channelId/edit/:id" element={<EditVideoPage />} /> */}
-          
+
+          {userInfo && (
+            <>
+              <Route path="/channel/create" element={<CreateChannelPage />} />
+              <Route path="/channel/:id" element={<ChannelPage />} />
+              <Route path="/channel/:id/upload" element={<UploadVideoPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+            </>
+          )}
+
           <Route path="/auth" element={<AuthPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

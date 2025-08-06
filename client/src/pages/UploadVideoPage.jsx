@@ -1,42 +1,68 @@
 // src/pages/UploadVideoPage.jsx
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header.jsx';
 import apiClient from '../api/apiClient.js';
-import { useNavigate } from 'react-router-dom';
 
-export default function UploadVideoPage() {
-  const { id: channelId } = useParams();
+export default function UploadVideo() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    videoUrl: '',
-    thumbnailUrl: '',
-    category: ''
-  });
+  const { myChannel } = useSelector(state => state.channel);
+  const [mode, setMode] = useState('file');
+  const [form, setForm] = useState({ title: '', category: '', thumbnailUrl: '', externalUrl: '', description: '' });
+  const [file, setFile] = useState(null);
 
-  const handleChange = e =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  if (!myChannel) {
+    toast.info('Create a channel first.');
+    return <div>Please create your channel before uploading videos.</div>;
+  }
+
+  const onChange = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async e => {
     e.preventDefault();
-    await apiClient.post('/videos', { ...form, channelId });
-    navigate(`/channel/${channelId}`);
+    if (mode === 'file' && !file) return toast.error('Please pick a file.');
+    if (mode === 'link' && !form.externalUrl) return toast.error('Please paste a YouTube/Vimeo link.');
+
+    const data = new FormData();
+    Object.entries(form).forEach(([k, v]) => { if (v && k !== 'externalUrl') data.append(k, v); });
+    data.append('channelId', myChannel._id);
+
+    if (mode === 'file') data.append('videoFile', file);
+    else data.append('externalUrl', form.externalUrl);
+
+    try {
+      await apiClient.post('/videos', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast.success('Video uploaded.');
+      navigate(`/channel/${myChannel._id}`);
+    } catch (e) {
+      toast.error(e.response?.data?.message || e.message);
+    }
   };
 
   return (
     <>
       <Header />
-      <div className="main-content upload-page">
-        <h2>Upload New Video</h2>
-        <form className="upload-form" onSubmit={handleSubmit}>
-          <input name="title" placeholder="Title" onChange={handleChange} required />
-          <input name="videoUrl" placeholder="Video URL" onChange={handleChange} required />
-          <input name="thumbnailUrl" placeholder="Thumbnail URL" onChange={handleChange} />
-          <input name="category" placeholder="Category" onChange={handleChange} required />
-          <textarea name="description" rows={4} placeholder="Description" onChange={handleChange} />
-          <button type="submit">Upload</button>
+      <div><h2>Upload Video</h2>
+        <div>
+          <label><input checked={mode === 'file'} type="radio" onChange={() => setMode('file')} /> Upload File</label>
+          <label><input checked={mode === 'link'} type="radio" onChange={() => setMode('link')} /> Use YouTube/Vimeo Link</label>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <input name="title" placeholder="Title" value={form.title} onChange={onChange} required />
+          <input name="category" placeholder="Category" value={form.category} onChange={onChange} required />
+          {mode === 'link' && (
+            <input name="externalUrl" type="url" placeholder="https://youtube.com/watch?v=…" value={form.externalUrl} onChange={onChange} autoComplete="off" />
+          )}
+          {mode === 'file' && (
+            <input type="file" accept="video/*" onChange={e => setFile(e.target.files[0] || null)} />
+          )}
+          <input name="thumbnailUrl" placeholder="Thumbnail URL (optional)" value={form.thumbnailUrl} onChange={onChange} />
+          <textarea name="description" placeholder="Description" value={form.description} onChange={onChange} rows={4} />
+          <button type="submit">Upload Video</button>
         </form>
       </div>
     </>

@@ -1,3 +1,4 @@
+// src/pages/ProfilePage.jsx
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import Header from '../components/Header.jsx';
@@ -5,6 +6,7 @@ import apiClient from '../api/apiClient.js';
 
 export default function ProfilePage() {
   const { userInfo } = useSelector(state => state.user);
+  const { myChannel } = useSelector(state => state.channel);
   const [avatar, setAvatar] = useState(userInfo?.avatar || '');
 
   const handleUpdate = async () => {
@@ -34,6 +36,15 @@ export default function ProfilePage() {
           placeholder="Avatar URL"
         />
         <button onClick={handleUpdate}>Update Avatar</button>
+
+        {myChannel && (
+          <div className="your-channel-info">
+            <h3>Your Channel:</h3>
+            <p>Name: {myChannel.channelName}</p>
+            <p>Description: {myChannel.description}</p>
+            <img src={myChannel.channelBanner} alt="Banner" className="channel-banner" />
+          </div>
+        )}
       </div>
     </>
   );

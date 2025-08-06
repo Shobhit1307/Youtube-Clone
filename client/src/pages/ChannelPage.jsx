@@ -1,6 +1,5 @@
-// src/pages/ChannelPage.jsx
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Header from '../components/Header.jsx';
 import VideoCard from '../components/VideoCard.jsx';
@@ -11,39 +10,34 @@ export default function ChannelPage() {
   const { userInfo } = useSelector(state => state.user);
   const [channel, setChannel] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // Fetch channel by ID
   useEffect(() => {
-    const fetchChannel = async () => {
+    async function fetchChannel() {
       try {
         const res = await apiClient.get(`/channels/${id}`);
         setChannel(res.data);
-      } catch (error) {
-        console.error('Error fetching channel:', error);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
-    };
+    }
     fetchChannel();
   }, [id]);
 
-  // Handle Delete
-  const handleDelete = useCallback(async videoId => {
-    try {
-      await apiClient.delete(`/videos/${videoId}`);
-      setChannel(prev => ({
-        ...prev,
-        videos: prev.videos.filter(v => v._id !== videoId),
-      }));
-    } catch (error) {
-      console.error('Error deleting video:', error);
-    }
+  const handleDelete = useCallback(async vidId => {
+    await apiClient.delete(`/videos/${vidId}`);
+    setChannel(prev => ({
+      ...prev,
+      videos: prev.videos.filter(v => v._id !== vidId)
+    }));
   }, []);
 
-  if (loading) return <div className="loading">Loading channel...</div>;
-  if (!channel) return <div className="error">Channel not found.</div>;
+  if (loading) return <div>Loading...</div>;
+  if (!channel) return <div>Channel not found.</div>;
 
-  const isOwner = userInfo && userInfo._id === channel.owner;
+  const isOwner = userInfo?._id === channel.owner._id;
 
   return (
     <>
@@ -51,13 +45,20 @@ export default function ChannelPage() {
       <div className="main-content">
         <h1>{channel.channelName}</h1>
         <p>{channel.description}</p>
-
+        {isOwner && (
+          <button onClick={() => navigate(`/channel/${channel._id}/upload`)}>
+            Upload Video
+          </button>
+        )}
         <div className="video-grid">
-          {channel.videos.map(video => (
-            <div key={video._id} className="video-wrapper">
-              <VideoCard video={video} />
+          {channel.videos.map(v => (
+            <div key={v._id} className="video-wrapper">
+              <VideoCard video={v} />
               {isOwner && (
-                <button onClick={() => handleDelete(video._id)} className="delete-btn">
+                <button
+                  onClick={() => handleDelete(v._id)}
+                  className="delete-btn"
+                >
                   Delete
                 </button>
               )}

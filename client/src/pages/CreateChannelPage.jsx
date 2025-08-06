@@ -1,22 +1,31 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header.jsx';
 import apiClient from '../api/apiClient.js';
-import { useNavigate } from 'react-router-dom';
 
 export default function CreateChannelPage() {
-  const [form, setForm] = useState({ channelName: '', description: '', channelBanner: '' });
+  const [form, setForm] = useState({
+    channelName: '',
+    description: '',
+    channelBanner: ''
+  });
   const navigate = useNavigate();
 
   const handleChange = e =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      await apiClient.post('/channels', form);
-      navigate('/');
+      const res = await apiClient.post('/channels', form);
+      navigate(`/channel/${res.data._id}`);
     } catch (err) {
-      console.error('Error creating channel:', err);
+      if (err.response?.status === 400) {
+        alert('You already have a channel');
+        navigate(`/channel/${err.response.data.channelId}`);
+      } else {
+        console.error(err);
+      }
     }
   };
 
@@ -25,7 +34,7 @@ export default function CreateChannelPage() {
       <Header />
       <div className="main-content">
         <h2>Create Your Channel</h2>
-        <form onSubmit={handleSubmit} className="channel-form">
+        <form className="channel-form" onSubmit={handleSubmit}>
           <input
             name="channelName"
             placeholder="Channel Name"
@@ -41,7 +50,7 @@ export default function CreateChannelPage() {
           />
           <input
             name="channelBanner"
-            placeholder="Banner Image URL"
+            placeholder="Banner URL"
             value={form.channelBanner}
             onChange={handleChange}
           />

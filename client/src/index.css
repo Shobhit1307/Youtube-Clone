@@ -143,3 +143,51 @@ button[type="submit"] {
   .main-content { padding: 0.5rem; }
   .video-card h4 { font-size: 0.9rem; }
 }
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 16px;
+}
+
+.auth-page form,
+.channel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toggle-mode {
+  margin-top: 12px;
+}
+
+.app-body {
+  display: flex;
+}
+
+.main-content {
+  flex: 1;
+  padding: 16px;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.upload-form input, .upload-form textarea {
+  width: 100%; margin-bottom: 12px; padding: 8px;
+}
+.upload-page .main-content { max-width: 600px; margin: auto; }
+.delete-btn { color: red; }
+.edit-btn { margin-right: 8px; }
+

@@ -1,19 +1,93 @@
+import mongoose from 'mongoose';
 import Channel from '../models/Channel.js';
-import Video from '../models/Video.js';
 
-export const createChannel = async (req, res) => {
-  const { channelName, description, channelBanner } = req.body;
-  const channel = await Channel.create({
-    channelName, description, channelBanner,
-    owner: req.user._id
-  });
-  res.status(201).json(channel);
-};
+/**
+ * POST   /api/channels/
+ * Create a new channel for logged-in user.
+ * One channel per user. Returns 400 with existing channelId if already present.
+ */
+export async function createChannel(req, res) {
+  const ownerId = req.user._id;
 
-export const getChannelById = async (req, res) => {
-  const channel = await Channel.findById(req.params.id)
-    .populate('owner', 'username')
-    .populate('videos');
-  if (!channel) return res.status(404).json({ message: 'Channel not found' });
-  res.json(channel);
-};
+  if (!mongoose.Types.ObjectId.isValid(ownerId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  try {
+    const existing = await Channel.findOne({ owner: ownerId });
+    if (existing) {
+      return res.status(400).json({
+        message: 'Channel already exists',
+        channelId: existing._id
+      });
+    }
+
+    const { channelName, description, channelBanner } = req.body;
+    const channel = await Channel.create({
+      channelName,
+      description,
+      channelBanner,
+      owner: ownerId
+    });
+
+    return res.status(201).json(channel);
+  } catch (err) {
+    console.error('Error creating channel', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+}
+
+/**
+ * GET    /api/channels/my
+ * Get the channel owned by the logged-in user.
+ * Protected route.
+ */
+export async function getMyChannel(req, res) {
+  const ownerId = req.user._id;
+
+  if (!mongoose.Types.ObjectId.isValid(ownerId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  try {
+    const channel = await Channel.findOne({ owner: ownerId })
+      .populate('owner', 'username avatar')
+      .populate('videos');
+
+    if (!channel) {
+      return res.status(404).json({ message: 'No channel found for this user' });
+    }
+
+    return res.json(channel);
+  } catch (err) {
+    console.error('Error fetching channel by owner', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+}
+
+/**
+ * GET    /api/channels/:id
+ * Public endpoint: retrieve channel by its _id
+ */
+export async function getChannelById(req, res) {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Invalid channel ID' });
+  }
+
+  try {
+    const channel = await Channel.findById(id)
+      .populate('owner', 'username avatar')
+      .populate('videos');
+
+    if (!channel) {
+      return res.status(404).json({ message: 'Channel not found' });
+    }
+
+    return res.json(channel);
+  } catch (err) {
+    console.error('Error fetching channel by ID', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+}
