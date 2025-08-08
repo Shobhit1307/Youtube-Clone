@@ -9,6 +9,8 @@ import apiAuth from './routes/authRoutes.js';
 import apiVideo from './routes/videoRoutes.js';
 import apiChannel from './routes/channelRoutes.js';
 import apiComments from './routes/commentRoutes.js';
+import subscriptionRoutes from './routes/subscriptionRoutes.js';
+import searchRoutes from './routes/search.js';
 import { connectDB } from './config/db.js';
 
 dotenv.config();
@@ -50,6 +52,8 @@ app.use('/api/auth', apiAuth);
 app.use('/api/videos', apiVideo);
 app.use('/api/channels', apiChannel);
 app.use('/api/videos/:videoId/comments', apiComments);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/search', searchRoutes);
 
 // Catch-all fallback — named wildcard is required in Express 5
 app.all('/*splat', (req, res) => {

@@ -1,6 +1,6 @@
 // backend/routes/authRoutes.js
 import express from 'express';
-import { registerUser, authUser, updateProfile } from '../controllers/authController.js';
+import { registerUser, authUser, updateProfile, getProfile } from '../controllers/authController.js';
 import { registerValidation } from '../validators/authValidator.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { protect } from '../middleware/authMiddleware.js';
@@ -15,5 +15,7 @@ router.post('/register',
 router.post('/login', authUser);
 router.put('/profile', protect, updateProfile);
 
+// new: get logged-in user's profile + liked/commented videos
+router.get('/profile', protect, getProfile);
 
 export default router;

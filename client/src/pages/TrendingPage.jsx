@@ -13,9 +13,9 @@ export default function TrendingPage() {
 
   return (
     <>
-      <Header />
+      
       <div className="app-body">
-        <Sidebar />
+        
         <main className="main-content">
           <h2>🔥 Trending Videos</h2>
           <div className="video-grid">

@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   email:    { type: String, required: true, unique: true },
   password: { type: String, required: true },
   avatar:   { type: String, default: '' },
+  subscriptions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Channel' }],
   channels: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Channel' }],
 }, { timestamps: true });
 

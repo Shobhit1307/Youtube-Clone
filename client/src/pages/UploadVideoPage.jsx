@@ -45,7 +45,7 @@ export default function UploadVideo() {
 
   return (
     <>
-      <Header />
+      
       <div><h2>Upload Video</h2>
         <div>
           <label><input checked={mode === 'file'} type="radio" onChange={() => setMode('file')} /> Upload File</label>

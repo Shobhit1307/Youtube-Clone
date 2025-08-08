@@ -1,6 +1,7 @@
 // backend/controllers/videoController.js
 import mongoose from 'mongoose';
 import Video from '../models/Video.js';
+import Channel from '../models/Channel.js';
 
 const SERVER_URL = process.env.SERVER_URL || 'http://localhost:5000';
 
@@ -14,14 +15,14 @@ function normalizeYouTubeURL(raw = '') {
   }
 }
 
-async function getVideos(req, res) {
+export async function getVideos(req, res) {
   const { search = '', category = '' } = req.query;
   const filter = {};
 
   if (search) {
     filter.$or = [
       { title: { $regex: search, $options: 'i' } },
-      { 'uploader.username': { $regex: search, $options: 'i' } }
+      { description: { $regex: search, $options: 'i' } }
     ];
   }
 
@@ -35,12 +36,8 @@ async function getVideos(req, res) {
     _id: v._id,
     title: v.title,
     description: v.description,
-    videoUrl: v.videoUrl.startsWith('http')
-      ? v.videoUrl
-      : `${SERVER_URL}${v.videoUrl}`,
-    thumbnailUrl: v.thumbnailUrl?.startsWith('http')
-      ? v.thumbnailUrl
-      : `${SERVER_URL}${v.thumbnailUrl}`,
+    videoUrl: v.videoUrl?.startsWith('http') ? v.videoUrl : `${SERVER_URL}${v.videoUrl}`,
+    thumbnailUrl: v.thumbnailUrl?.startsWith('http') ? v.thumbnailUrl : `${SERVER_URL}${v.thumbnailUrl}`,
     category: v.category,
     views: v.views,
     uploadDate: v.uploadDate,
@@ -53,32 +50,33 @@ async function getVideos(req, res) {
   res.json(sanitized);
 }
 
-async function getVideoById(req, res) {
+export async function getVideoById(req, res) {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ message: 'Invalid video id' });
   }
 
   const video = await Video.findById(req.params.id)
-    .populate('uploader', 'username')
-    .populate('channel', 'channelName');
+    .populate('uploader', 'username avatar')
+    .populate({
+      path: 'channel',
+      select: 'channelName channelBanner subscribers',
+      populate: { path: 'owner', select: 'username avatar' }
+    });
 
   if (!video) {
     return res.status(404).json({ message: 'Video not found' });
   }
 
-  video.views++;
+  // increment views
+  video.views = (video.views || 0) + 1;
   await video.save();
 
   res.json({
     _id: video._id,
     title: video.title,
     description: video.description,
-    videoUrl: video.videoUrl.startsWith('http')
-      ? video.videoUrl
-      : `${SERVER_URL}${video.videoUrl}`,
-    thumbnailUrl: video.thumbnailUrl?.startsWith('http')
-      ? video.thumbnailUrl
-      : `${SERVER_URL}${video.thumbnailUrl}`,
+    videoUrl: video.videoUrl?.startsWith('http') ? video.videoUrl : `${process.env.SERVER_URL || 'http://localhost:5000'}${video.videoUrl}`,
+    thumbnailUrl: video.thumbnailUrl?.startsWith('http') ? video.thumbnailUrl : `${process.env.SERVER_URL || 'http://localhost:5000'}${video.thumbnailUrl}`,
     category: video.category,
     views: video.views,
     uploadDate: video.uploadDate,
@@ -89,7 +87,8 @@ async function getVideoById(req, res) {
   });
 }
 
-async function createVideo(req, res) {
+
+export async function createVideo(req, res) {
   const { title = '', description = '', category = '', externalUrl = '' } = req.body;
   const filename = req.file?.filename;
   const channelId = req.body.channelId;
@@ -106,6 +105,11 @@ async function createVideo(req, res) {
 
   if (!mongoose.isValidObjectId(channelId)) {
     return res.status(400).json({ message: 'Invalid channelId provided' });
+  }
+
+  const channel = await Channel.findById(channelId);
+  if (!channel) {
+    return res.status(404).json({ message: 'Channel not found' });
   }
 
   const urlPart = filename ? `/uploads/videos/${filename}` : normalizeYouTubeURL(externalUrl);
@@ -127,34 +131,59 @@ async function createVideo(req, res) {
     channel: channelId
   });
 
+  // push into channel.videos for immediate population on channel fetch
+  try {
+    channel.videos.push(video._id);
+    await channel.save();
+  } catch (err) {
+    console.error('Failed to add video id to channel.videos', err);
+  }
+
   res.status(201).json(video);
 }
 
-async function updateVideo(req, res) {
+export async function updateVideo(req, res) {
   const video = await Video.findById(req.params.id);
   if (!video) return res.status(404).json({ message: 'Video not found' });
+
+  // ensure only uploader can update
   if (video.uploader.toString() !== req.user._id.toString()) {
     return res.status(403).json({ message: 'Not authorized' });
   }
 
-  Object.assign(video, req.body);
-  await video.save();
+  // only allow selected fields
+  const allowed = ['title', 'description', 'category', 'thumbnailUrl'];
+  allowed.forEach(f => {
+    if (f in req.body) video[f] = req.body[f];
+  });
 
+  await video.save();
   res.json(video);
 }
 
-async function deleteVideo(req, res) {
+export async function deleteVideo(req, res) {
   const video = await Video.findById(req.params.id);
   if (!video) return res.status(404).json({ message: 'Video not found' });
+
+  // only uploader can delete
   if (video.uploader.toString() !== req.user._id.toString()) {
     return res.status(403).json({ message: 'Not authorized' });
+  }
+
+  // remove reference from channel.videos if present
+  try {
+    if (video.channel) {
+      await Channel.findByIdAndUpdate(video.channel, { $pull: { videos: video._id } });
+    }
+  } catch (err) {
+    console.error('Error removing video from channel.videos', err);
   }
 
   await video.deleteOne();
   res.json({ message: 'Video deleted', id: req.params.id });
 }
 
-async function likeVideo(req, res) {
+export async function likeVideo(req, res) {
   const video = await Video.findById(req.params.id);
   if (!video) return res.status(404).json({ message: 'Video not found' });
 
@@ -170,7 +199,7 @@ async function likeVideo(req, res) {
   res.json({ likes: video.likes.length, dislikes: video.dislikes.length });
 }
 
-async function dislikeVideo(req, res) {
+export async function dislikeVideo(req, res) {
   const video = await Video.findById(req.params.id);
   if (!video) return res.status(404).json({ message: 'Video not found' });
 
@@ -186,7 +215,7 @@ async function dislikeVideo(req, res) {
   res.json({ likes: video.likes.length, dislikes: video.dislikes.length });
 }
 
-async function getTrending(req, res) {
+export async function getTrending(req, res) {
   const videos = await Video.find({})
     .sort({ views: -1 })
     .limit(10)
@@ -206,14 +235,3 @@ async function getTrending(req, res) {
 
   res.json(sanitized);
 }
-
-export {
-  getVideos,
-  getVideoById,
-  createVideo,
-  updateVideo,
-  deleteVideo,
-  likeVideo,
-  dislikeVideo,
-  getTrending
-};

@@ -26,4 +26,9 @@ export const store = configureStore({
   })
 });
 
+// expose store to window for logout timer dispatch
+if (typeof window !== 'undefined') {
+  window.store = store;
+}
+
 export const persistor = persistStore(store);

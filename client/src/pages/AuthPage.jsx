@@ -34,7 +34,7 @@ export default function AuthPage() {
 
   return (
     <>
-      <Header />
+      
       <div className="main-content auth-page">
         <h2>{mode === 'login' ? 'Sign In' : 'Register'}</h2>
         <form onSubmit={handleSubmit}>

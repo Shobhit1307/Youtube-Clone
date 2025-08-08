@@ -52,23 +52,28 @@ export async function getMyChannel(req, res) {
   try {
     const channel = await Channel.findOne({ owner: ownerId })
       .populate('owner', 'username avatar')
-      .populate('videos');
+      .populate({
+        path: 'videos',
+        populate: { path: 'uploader', select: 'username avatar' },
+        options: { sort: { uploadDate: -1 } }
+      })
+      .populate('subscribers', 'username avatar');
 
     if (!channel) {
       return res.status(404).json({ message: 'No channel found for this user' });
     }
 
-    return res.json(channel);
+    // include subscribersCount for convenience
+    const channelObj = channel.toObject();
+    channelObj.subscribersCount = (channel.subscribers || []).length;
+
+    return res.json(channelObj);
   } catch (err) {
     console.error('Error fetching channel by owner', err);
     return res.status(500).json({ message: 'Server error' });
   }
 }
 
-/**
- * GET    /api/channels/:id
- * Public endpoint: retrieve channel by its _id
- */
 export async function getChannelById(req, res) {
   const { id } = req.params;
 
@@ -79,13 +84,21 @@ export async function getChannelById(req, res) {
   try {
     const channel = await Channel.findById(id)
       .populate('owner', 'username avatar')
-      .populate('videos');
+      .populate({
+        path: 'videos',
+        populate: { path: 'uploader', select: 'username avatar' },
+        options: { sort: { uploadDate: -1 } }
+      })
+      .populate('subscribers', 'username avatar');
 
     if (!channel) {
       return res.status(404).json({ message: 'Channel not found' });
     }
 
-    return res.json(channel);
+    const channelObj = channel.toObject();
+    channelObj.subscribersCount = (channel.subscribers || []).length;
+
+    return res.json(channelObj);
   } catch (err) {
     console.error('Error fetching channel by ID', err);
     return res.status(500).json({ message: 'Server error' });

@@ -1,40 +1,42 @@
-// HomePage.jsx
-import React, { useEffect, useState, useCallback } from 'react';
+// src/pages/HomePage.jsx
+import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Header from '../components/Header.jsx';
-import Sidebar from '../components/Sidebar.jsx';
+import { useSearchParams } from 'react-router-dom';
 import FilterButtons from '../components/FilterButtons.jsx';
 import VideoCard from '../components/VideoCard.jsx';
 import { getVideos, likeVideo } from '../features/videos/videosSlice.js';
 
-function HomePage() {
+export default function HomePage() {
   const dispatch = useDispatch();
   const videos = useSelector(state => state.videos.list);
-  const [category, setCategory] = useState('All');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const search = searchParams.get('search') || '';
+  const category = searchParams.get('category') || '';
 
   useEffect(() => {
-    dispatch(getVideos({ search: '', category: category === 'All' ? '' : category }));
-  }, [dispatch, category]);
+    dispatch(getVideos({ search, category }));
+  }, [dispatch, search, category]);
 
-  const onSelectCategory = useCallback(setCategory, []);
+  const onSelectCategory = useCallback((cat) => {
+    const params = {};
+    if (cat && cat !== 'All') params.category = cat;
+    if (search) params.search = search;
+    setSearchParams(params);
+  }, [setSearchParams, search]);
+
   const onLike = useCallback(id => dispatch(likeVideo(id)), [dispatch]);
+
+  const activeCategory = category || 'All';
 
   return (
     <>
-      <Header />
-      <div className="app-body">
-        <Sidebar />
-        <main className="main-content">
-          <FilterButtons active={category} onSelect={onSelectCategory} />
-          <div className="video-grid">
-            {videos.map(video => (
-              <VideoCard key={video._id} video={video} onLike={onLike} />
-            ))}
-          </div>
-        </main>
+      <FilterButtons active={activeCategory} onSelect={onSelectCategory} />
+      <div className="video-grid" style={{ marginTop: 12 }}>
+        {videos.map(video => (
+          <VideoCard key={video._id} video={video} onLike={onLike} />
+        ))}
       </div>
     </>
   );
 }
-
-export default HomePage;

@@ -1,7 +1,9 @@
+// backend/controllers/authController.js
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
+import Video from '../models/Video.js';
+import Comment from '../models/Comment.js';
 
 const generateToken = userId =>
   jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -13,8 +15,6 @@ export const registerUser = async (req, res) => {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
-   
-
   const existing = await User.findOne({ email });
   if (existing) {
     return res.status(400).json({ message: 'Email is already registered' });
@@ -24,6 +24,7 @@ export const registerUser = async (req, res) => {
     const user = await User.create({ username, email, password });
     res.status(201).json({
       id: user._id,
+      _id: user._id,
       username: user.username,
       email: user.email,
       avatar: user.avatar,
@@ -52,6 +53,7 @@ export const authUser = async (req, res) => {
 
   res.json({
     id: user._id,
+    _id: user._id,
     username: user.username,
     email: user.email,
     avatar: user.avatar,
@@ -69,3 +71,58 @@ export const updateProfile = async (req, res) => {
   res.json({ username: user.username, avatar: user.avatar });
 };
 
+// GET /api/auth/profile
+// returns logged-in user info + liked videos + videos that user commented on
+export const getProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId).select('-password');
+
+    // liked videos
+    const likedVideos = await Video.find({ likes: userId })
+      .populate('uploader', 'username')
+      .populate('channel', 'channelName');
+
+    // commented videos (unique)
+    const comments = await Comment.find({ user: userId }).populate({
+      path: 'video',
+      populate: [{ path: 'uploader', select: 'username' }, { path: 'channel', select: 'channelName' }]
+    });
+
+    // collect unique videos from comments
+    const commentedMap = new Map();
+    comments.forEach(c => {
+      if (c.video) commentedMap.set(String(c.video._id), c.video);
+    });
+    const commentedVideos = Array.from(commentedMap.values());
+
+    res.json({
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+      },
+      likedVideos: likedVideos.map(v => ({
+        _id: v._id,
+        title: v.title,
+        thumbnailUrl: v.thumbnailUrl,
+        uploader: v.uploader,
+        channel: v.channel,
+        views: v.views,
+      })),
+      commentedVideos: commentedVideos.map(v => ({
+        _id: v._id,
+        title: v.title,
+        thumbnailUrl: v.thumbnailUrl,
+        uploader: v.uploader,
+        channel: v.channel,
+        views: v.views,
+      }))
+    });
+  } catch (err) {
+    console.error('getProfile error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
