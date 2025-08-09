@@ -1,4 +1,3 @@
-// src/pages/ChannelPage.jsx
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -67,68 +66,74 @@ export default function ChannelPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (!channel) return <div>Channel not found.</div>;
+  if (loading) return <div className="loading">Loading...</div>;
+  if (!channel) return <div className="error">Channel not found.</div>;
 
   const isOwner = userInfo?._id === channel.owner._id;
 
   return (
     <>
-      
-      <div className="main-content">
+      <Header />
+      <div className="main-content channel-page">
         {channel.channelBanner && (
           <img
             src={channel.channelBanner}
             alt="channel banner"
-            style={{ width: '100%', borderRadius: 6, marginBottom: 12 }}
+            className="channel-banner"
           />
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8 }}>
-          <h1>{channel.channelName}</h1>
-          <span style={{ fontWeight: 'bold', color: '#555' }}>
+        <div className="channel-info">
+          <h1 className="channel-name">{channel.channelName}</h1>
+          <span className="subscribers-count">
             {channel.subscribers?.length ?? channel.subscribers} subscribers
           </span>
           {!isOwner && (
             <button
               onClick={handleToggleSubscribe}
-              style={{
-                backgroundColor: isSubscribed ? '#ccc' : '#cc0000',
-                color: isSubscribed ? '#000' : '#fff',
-                border: 'none',
-                borderRadius: 4,
-                padding: '6px 12px',
-                cursor: 'pointer',
-              }}
+              className={`subscribe-button ${isSubscribed ? 'subscribed' : ''}`}
             >
               {isSubscribed ? 'Subscribed' : 'Subscribe'}
             </button>
           )}
         </div>
 
-        <p>{channel.description}</p>
+        <p className="channel-description">{channel.description}</p>
 
         {isOwner && (
-          <button onClick={() => navigate(`/channel/${channel._id}/upload`)}>
+          <button
+            onClick={() => navigate(`/channel/${channel._id}/upload`)}
+            className="upload-button"
+          >
             Upload Video
           </button>
         )}
 
-        <div className="video-grid" style={{ marginTop: 16 }}>
+        <div className="video-grid">
           {channel.videos && channel.videos.length > 0 ? (
             channel.videos.map(v => (
               <div key={v._id} className="video-wrapper">
                 <VideoCard video={v} />
                 {isOwner && (
-                  <div style={{ marginTop: 6 }}>
-                    <button className="edit-btn" onClick={() => navigate(`/video/${v._id}/edit`)}>Edit</button>
-                    <button className="delete-btn" onClick={() => handleDelete(v._id)}>Delete</button>
+                  <div className="video-actions">
+                    <button
+                      className="edit-btn"
+                      onClick={() => navigate(`/video/${v._id}/edit`)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(v._id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 )}
               </div>
             ))
           ) : (
-            <p>No videos uploaded yet.</p>
+            <p className="no-videos">No videos uploaded yet.</p>
           )}
         </div>
       </div>

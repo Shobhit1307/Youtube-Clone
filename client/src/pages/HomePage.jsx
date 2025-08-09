@@ -1,4 +1,3 @@
-// src/pages/HomePage.jsx
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
@@ -30,13 +29,13 @@ export default function HomePage() {
   const activeCategory = category || 'All';
 
   return (
-    <>
+    <div className="main-content home-page">
       <FilterButtons active={activeCategory} onSelect={onSelectCategory} />
-      <div className="video-grid" style={{ marginTop: 12 }}>
+      <div className="video-grid">
         {videos.map(video => (
           <VideoCard key={video._id} video={video} onLike={onLike} />
         ))}
       </div>
-    </>
+    </div>
   );
 }

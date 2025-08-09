@@ -8,7 +8,8 @@ import {
   deleteVideo,
   likeVideo,
   dislikeVideo,
-  getTrending
+  getTrending,
+  getRecommendedVideos
 } from '../controllers/videoController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { uploadVideo } from '../middleware/upload.js';
@@ -31,6 +32,9 @@ router.get('/categories', async (req, res) => {
 
 // Trending videos
 router.get('/trending', getTrending);
+
+// Recommended videos
+router.get('/recommended/:id', getRecommendedVideos);
 
 // List videos with optional filters
 router.get('/', getVideos);

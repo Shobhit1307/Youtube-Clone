@@ -1,4 +1,3 @@
-// src/pages/SubscriptionsPage.jsx
 import React, { useEffect, useState } from 'react';
 import apiClient from '../api/apiClient.js';
 import Header from '../components/Header.jsx';
@@ -24,27 +23,31 @@ export default function SubscriptionsPage() {
 
   return (
     <>
-      
+      <Header />
       <div className="app-body">
-        {/* keep Sidebar if you want */}
-        <main className="main-content">
-          <h2>Your Subscriptions</h2>
-          {loading ? <p>Loading…</p> : channels.length === 0 ? (
-            <p>You have no subscriptions yet.</p>
+        <main className="main-content subscriptions-page">
+          <h2 className="page-title">Your Subscriptions</h2>
+          {loading ? <p className="loading">Loading…</p> : channels.length === 0 ? (
+            <p className="no-videos">You have no subscriptions yet.</p>
           ) : (
             channels.map(ch => (
-              <section key={ch._id} style={{ marginBottom: 24 }}>
-                {ch.channelBanner && <img src={ch.channelBanner} alt="banner" style={{ width: '100%', borderRadius: 6, marginBottom: 8 }} />}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <h3>{ch.channelName}</h3>
-                  <div>{ch.subscribersCount} subscribers</div>
+              <section key={ch._id} className="channel-section">
+                {ch.channelBanner && (
+                  <img
+                    src={ch.channelBanner}
+                    alt="banner"
+                    className="channel-banner"
+                  />
+                )}
+                <div className="channel-info">
+                  <h3 className="channel-name">{ch.channelName}</h3>
+                  <div className="subscribers-count">{ch.subscribersCount} subscribers</div>
                 </div>
-
-                <div style={{ marginTop: 8 }} className="video-grid">
+                <div className="video-grid">
                   {ch.videos && ch.videos.length > 0 ? (
                     ch.videos.map(v => <VideoCard key={v._id} video={v} />)
                   ) : (
-                    <p>No recent videos</p>
+                    <p className="no-videos">No recent videos</p>
                   )}
                 </div>
               </section>

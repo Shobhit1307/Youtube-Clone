@@ -1,4 +1,3 @@
-// src/components/FilterButtons.jsx
 import React, { useEffect, useState } from 'react';
 import apiClient from '../api/apiClient.js';
 
@@ -23,12 +22,13 @@ function FilterButtons({ active, onSelect }) {
   const filters = ['All', ...categories];
 
   return (
-    <div className="filter-buttons" style={{ display: 'flex', gap: 8 }}>
+    <div className="filter-buttons">
       {filters.map(f => (
         <button
           key={f}
-          className={f === active ? 'active' : ''}
+          className={`filter-button ${f === active ? 'active' : ''}`}
           onClick={() => onSelect(f)}
+          aria-label={`Filter by ${f} category`}
         >
           {f}
         </button>

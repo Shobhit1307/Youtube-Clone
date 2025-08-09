@@ -1,4 +1,3 @@
-// src/pages/UploadVideoPage.jsx
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -15,7 +14,7 @@ export default function UploadVideo() {
 
   if (!myChannel) {
     toast.info('Create a channel first.');
-    return <div>Please create your channel before uploading videos.</div>;
+    return <div className="main-content error">Please create your channel before uploading videos.</div>;
   }
 
   const onChange = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -45,24 +44,81 @@ export default function UploadVideo() {
 
   return (
     <>
-      
-      <div><h2>Upload Video</h2>
-        <div>
-          <label><input checked={mode === 'file'} type="radio" onChange={() => setMode('file')} /> Upload File</label>
-          <label><input checked={mode === 'link'} type="radio" onChange={() => setMode('link')} /> Use YouTube/Vimeo Link</label>
+      <Header />
+      <div className="main-content upload-page">
+        <h2 className="page-title">Upload Video</h2>
+        <div className="radio-group">
+          <label className="radio-label">
+            <input
+              type="radio"
+              checked={mode === 'file'}
+              onChange={() => setMode('file')}
+              className="radio-input"
+            />
+            Upload File
+          </label>
+          <label className="radio-label">
+            <input
+              type="radio"
+              checked={mode === 'link'}
+              onChange={() => setMode('link')}
+              className="radio-input"
+            />
+            Use YouTube/Vimeo Link
+          </label>
         </div>
-        <form onSubmit={handleSubmit}>
-          <input name="title" placeholder="Title" value={form.title} onChange={onChange} required />
-          <input name="category" placeholder="Category" value={form.category} onChange={onChange} required />
+        <form onSubmit={handleSubmit} className="upload-form">
+          <input
+            name="title"
+            placeholder="Title"
+            value={form.title}
+            onChange={onChange}
+            required
+            className="upload-input"
+          />
+          <input
+            name="category"
+            placeholder="Category"
+            value={form.category}
+            onChange={onChange}
+            required
+            className="upload-input"
+          />
           {mode === 'link' && (
-            <input name="externalUrl" type="url" placeholder="https://youtube.com/watch?v=…" value={form.externalUrl} onChange={onChange} autoComplete="off" />
+            <input
+              name="externalUrl"
+              type="url"
+              placeholder="https://youtube.com/watch?v=…"
+              value={form.externalUrl}
+              onChange={onChange}
+              autoComplete="off"
+              className="upload-input"
+            />
           )}
           {mode === 'file' && (
-            <input type="file" accept="video/*" onChange={e => setFile(e.target.files[0] || null)} />
+            <input
+              type="file"
+              accept="video/*"
+              onChange={e => setFile(e.target.files[0] || null)}
+              className="upload-file-input"
+            />
           )}
-          <input name="thumbnailUrl" placeholder="Thumbnail URL (optional)" value={form.thumbnailUrl} onChange={onChange} />
-          <textarea name="description" placeholder="Description" value={form.description} onChange={onChange} rows={4} />
-          <button type="submit">Upload Video</button>
+          <input
+            name="thumbnailUrl"
+            placeholder="Thumbnail URL (optional)"
+            value={form.thumbnailUrl}
+            onChange={onChange}
+            className="upload-input"
+          />
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={form.description}
+            onChange={onChange}
+            rows={4}
+            className="upload-textarea"
+          />
+          <button type="submit" className="submit-button">Upload Video</button>
         </form>
       </div>
     </>

@@ -1,4 +1,3 @@
-// src/pages/EditVideoPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header.jsx';
@@ -30,9 +29,9 @@ export default function EditVideoPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <><Header /><div className="main-content">Loading…</div></>;
+  if (loading) return <><Header /><div className="main-content loading">Loading…</div></>;
 
-  if (!video) return <><Header /><div className="main-content">Video not found</div></>;
+  if (!video) return <><Header /><div className="main-content error">Video not found</div></>;
 
   const handleChange = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -50,17 +49,49 @@ export default function EditVideoPage() {
 
   return (
     <>
-      
+      <Header />
       <div className="main-content upload-page">
-        <h2>Edit Video</h2>
+        <h2 className="page-title">Edit Video</h2>
         <form className="upload-form" onSubmit={handleSubmit}>
-          <input name="title" placeholder="Title" value={form.title} onChange={handleChange} required />
-          <input name="category" placeholder="Category" value={form.category} onChange={handleChange} />
-          <input name="thumbnailUrl" placeholder="Thumbnail URL" value={form.thumbnailUrl} onChange={handleChange} />
-          <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} rows={6} />
-          <div>
-            <button type="submit">Save Changes</button>
-            <button type="button" onClick={() => navigate(-1)} style={{ marginLeft: '8px' }}>Cancel</button>
+          <input
+            name="title"
+            placeholder="Title"
+            value={form.title}
+            onChange={handleChange}
+            required
+            className="upload-input"
+          />
+          <input
+            name="category"
+            placeholder="Category"
+            value={form.category}
+            onChange={handleChange}
+            className="upload-input"
+          />
+          <input
+            name="thumbnailUrl"
+            placeholder="Thumbnail URL"
+            value={form.thumbnailUrl}
+            onChange={handleChange}
+            className="upload-input"
+          />
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={form.description}
+            onChange={handleChange}
+            rows={6}
+            className="upload-textarea"
+          />
+          <div className="form-actions">
+            <button type="submit" className="submit-button">Save Changes</button>
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="cancel-button"
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </div>

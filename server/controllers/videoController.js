@@ -87,7 +87,6 @@ export async function getVideoById(req, res) {
   });
 }
 
-
 export async function createVideo(req, res) {
   const { title = '', description = '', category = '', externalUrl = '' } = req.body;
   const filename = req.file?.filename;
@@ -234,4 +233,47 @@ export async function getTrending(req, res) {
   }));
 
   res.json(sanitized);
+}
+
+export async function getRecommendedVideos(req, res) {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid video id' });
+    }
+
+    const currentVideo = await Video.findById(id);
+    if (!currentVideo) {
+      return res.status(404).json({ message: 'Video not found' });
+    }
+
+    const videos = await Video.find({
+      _id: { $ne: id },
+      category: currentVideo.category
+    })
+      .populate('uploader', 'username')
+      .populate('channel', 'channelName')
+      .limit(10)
+      .sort({ views: -1 });
+
+    const sanitized = videos.map((v) => ({
+      _id: v._id,
+      title: v.title,
+      description: v.description,
+      videoUrl: v.videoUrl?.startsWith('http') ? v.videoUrl : `${SERVER_URL}${v.videoUrl}`,
+      thumbnailUrl: v.thumbnailUrl?.startsWith('http') ? v.thumbnailUrl : `${SERVER_URL}${v.thumbnailUrl}`,
+      category: v.category,
+      views: v.views,
+      uploadDate: v.uploadDate,
+      uploader: v.uploader,
+      channel: v.channel,
+      likes: v.likes.length,
+      dislikes: v.dislikes.length
+    }));
+
+    res.json(sanitized);
+  } catch (err) {
+    console.error('getRecommendedVideos error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 }

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { registerUser, loginUser } from '../features/user/userSlice.js';
-import Header from '../components/Header.jsx';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export default function AuthPage() {
   const dispatch = useDispatch();
@@ -23,21 +23,23 @@ export default function AuthPage() {
     try {
       if (mode === 'login') {
         await dispatch(loginUser(formData)).unwrap();
+        toast.success('Logged in successfully');
       } else {
         await dispatch(registerUser(formData)).unwrap();
+        toast.success('Registered successfully');
       }
       navigate('/');
     } catch (err) {
       console.error('Error:', err);
+      toast.error(err.message || 'Authentication failed');
     }
   };
 
   return (
-    <>
-      
-      <div className="main-content auth-page">
-        <h2>{mode === 'login' ? 'Sign In' : 'Register'}</h2>
-        <form onSubmit={handleSubmit}>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2 className="auth-title">{mode === 'login' ? 'Sign In' : 'Register'}</h2>
+        <form onSubmit={handleSubmit} className="auth-form">
           {mode === 'register' && (
             <>
               <input
@@ -47,6 +49,7 @@ export default function AuthPage() {
                 value={formData.username}
                 onChange={handleChange}
                 required
+                className="auth-input"
               />
               <input
                 type="text"
@@ -54,6 +57,7 @@ export default function AuthPage() {
                 placeholder="Avatar URL (optional)"
                 value={formData.avatar}
                 onChange={handleChange}
+                className="auth-input"
               />
             </>
           )}
@@ -64,6 +68,7 @@ export default function AuthPage() {
             value={formData.email}
             onChange={handleChange}
             required
+            className="auth-input"
           />
           <input
             type="password"
@@ -73,21 +78,23 @@ export default function AuthPage() {
             onChange={handleChange}
             required
             autoComplete="current-password"
+            className="auth-input"
           />
-          <button type="submit">{mode === 'login' ? 'Login' : 'Register'}</button>
+          <button type="submit" className="auth-submit-button">
+            {mode === 'login' ? 'Login' : 'Register'}
+          </button>
         </form>
         <p className="toggle-mode">
-          {mode === 'login'
-            ? "Don't have an account?"
-            : 'Already a user?'}{' '}
+          {mode === 'login' ? "Don't have an account?" : 'Already a user?'}{' '}
           <button
             type="button"
             onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+            className="toggle-mode-button"
           >
             {mode === 'login' ? 'Register' : 'Login'}
           </button>
         </p>
       </div>
-    </>
+    </div>
   );
 }

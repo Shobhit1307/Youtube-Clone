@@ -1,7 +1,8 @@
-// src/App.jsx
 import React from 'react';
 import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Header from './components/Header.jsx';
 import Sidebar from './components/Sidebar.jsx';
@@ -19,20 +20,15 @@ const SubscriptionsPage = React.lazy(() => import('./pages/SubscriptionsPage.jsx
 
 function LayoutWrapper() {
   const location = useLocation();
-  // hide header/sidebar on auth path
   const hideLayout = location.pathname === '/auth';
-  // If you later want to hide multiple paths:
-  // const hideLayout = ['/auth','/some-other'].some(p => location.pathname.startsWith(p));
-
-  // Sidebar open state could be lifted to context or Redux if needed globally.
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
   return (
     <>
       {!hideLayout && <Header onMenuClick={() => setSidebarOpen(prev => !prev)} />}
-      <div className="app-body" style={{ display: 'flex' }}>
+      <div className="app-body">
         {!hideLayout && sidebarOpen && <Sidebar />}
-        <main className="main-content" style={{ flex: 1, padding: 16 }}>
+        <main className="main-content">
           <Outlet />
         </main>
       </div>
@@ -41,19 +37,26 @@ function LayoutWrapper() {
 }
 
 export default function App() {
-  const { userInfo } = useSelector(state => state.user); // keep route availability same as before
+  const { userInfo } = useSelector(state => state.user);
 
   return (
     <BrowserRouter>
       <React.Suspense fallback={<div>Loading…</div>}>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          theme="colored"
+          style={{ '--toastify-color-success': '#cc0000', '--toastify-color-error': '#cc0000' }}
+        />
         <Routes>
-          {/* All routes that should use the main layout */}
           <Route element={<LayoutWrapper />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/video/:id" element={<VideoPlayer />} />
             <Route path="/trending" element={<TrendingPage />} />
-
-            {/* Protected-ish routes (you previously gated by userInfo - keep that behaviour) */}
             {userInfo && (
               <>
                 <Route path="/channel/create" element={<CreateChannelPage />} />
@@ -65,11 +68,7 @@ export default function App() {
               </>
             )}
           </Route>
-
-          {/* Auth page - no header/sidebar */}
           <Route path="/auth" element={<AuthPage />} />
-
-          {/* fallback */}
           <Route path="*" element={<HomePage />} />
         </Routes>
       </React.Suspense>

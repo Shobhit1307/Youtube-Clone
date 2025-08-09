@@ -1,4 +1,3 @@
-// src/components/VideoJS.jsx
 import React, { useEffect, useRef } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
@@ -10,7 +9,7 @@ export default function VideoJS({ options, onReady }) {
   useEffect(() => {
     if (!playerRef.current && videoRef.current) {
       const videoEl = document.createElement('video-js');
-      videoEl.className = 'vjs-big-play-centered';
+      videoEl.className = 'vjs-big-play-centered video-js-player';
       videoRef.current.appendChild(videoEl);
 
       playerRef.current = videojs(videoEl, options, () => {
@@ -30,5 +29,5 @@ export default function VideoJS({ options, onReady }) {
     }
   }, []);
 
-  return <div data-vjs-player><div ref={videoRef} /></div>;
+  return <div data-vjs-player className="video-js-player"><div ref={videoRef} /></div>;
 }

@@ -9,10 +9,10 @@ const generateToken = userId =>
   jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
 export const registerUser = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, avatar } = req.body;
 
   if (!username || !email || !password) {
-    return res.status(400).json({ message: 'All fields are required' });
+    return res.status(400).json({ message: 'Username, email, and password are required' });
   }
 
   const existing = await User.findOne({ email });
@@ -21,7 +21,22 @@ export const registerUser = async (req, res) => {
   }
 
   try {
-    const user = await User.create({ username, email, password });
+    // Optional: Validate avatar URL if provided
+    if (avatar) {
+      try {
+        new URL(avatar); // Basic URL validation
+      } catch {
+        return res.status(400).json({ message: 'Invalid avatar URL' });
+      }
+    }
+
+    const user = await User.create({
+      username,
+      email,
+      password,
+      avatar: avatar || '', // Save avatar or empty string
+    });
+
     res.status(201).json({
       id: user._id,
       _id: user._id,
@@ -31,6 +46,7 @@ export const registerUser = async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ message: 'Registration failed', error: error.message });
   }
 };
@@ -71,8 +87,6 @@ export const updateProfile = async (req, res) => {
   res.json({ username: user.username, avatar: user.avatar });
 };
 
-// GET /api/auth/profile
-// returns logged-in user info + liked videos + videos that user commented on
 export const getProfile = async (req, res) => {
   try {
     const userId = req.user._id;

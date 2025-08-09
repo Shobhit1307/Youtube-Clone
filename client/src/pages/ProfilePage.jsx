@@ -1,4 +1,3 @@
-// src/pages/ProfilePage.jsx
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Header from '../components/Header.jsx';
@@ -40,44 +39,57 @@ export default function ProfilePage() {
 
   return (
     <>
-      
+      <Header />
       <div className="main-content profile-page">
-        <h2>Your Profile</h2>
+        <h2 className="page-title">Your Profile</h2>
         <img
           src={avatar || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}
           alt="avatar"
           className="profile-avatar"
         />
-        <p>Username: {userInfo?.username}</p>
-        <input
-          type="text"
-          value={avatar}
-          onChange={e => setAvatar(e.target.value)}
-          placeholder="Avatar URL"
-        />
-        <button onClick={handleUpdate}>Update Avatar</button>
+        <p className="profile-username">Username: {userInfo?.username}</p>
+        <div className="profile-form">
+          <input
+            type="text"
+            value={avatar}
+            onChange={e => setAvatar(e.target.value)}
+            placeholder="Avatar URL"
+            className="profile-input"
+          />
+          <button onClick={handleUpdate} className="submit-button">Update Avatar</button>
+        </div>
 
         {myChannel && (
-          <div className="your-channel-info" style={{ marginTop: 20 }}>
-            <h3>Your Channel:</h3>
-            <p>Name: {myChannel.channelName}</p>
-            <p>Description: {myChannel.description}</p>
-            {myChannel.channelBanner && <img src={myChannel.channelBanner} alt="Banner" className="channel-banner" />}
+          <div className="channel-info">
+            <h3 className="section-title">Your Channel</h3>
+            <p className="channel-name">Name: {myChannel.channelName}</p>
+            <p className="channel-description">Description: {myChannel.description}</p>
+            {myChannel.channelBanner && (
+              <img
+                src={myChannel.channelBanner}
+                alt="Banner"
+                className="channel-banner"
+              />
+            )}
           </div>
         )}
 
-        <div style={{ marginTop: 32 }}>
-          <h3>Liked Videos</h3>
-          {loading ? <p>Loading…</p> : likedVideos.length === 0 ? <p>No liked videos</p> : (
+        <div className="video-section">
+          <h3 className="section-title">Liked Videos</h3>
+          {loading ? <p className="loading">Loading…</p> : likedVideos.length === 0 ? (
+            <p className="no-videos">No liked videos</p>
+          ) : (
             <div className="video-grid">
               {likedVideos.map(v => <VideoCard key={v._id} video={v} />)}
             </div>
           )}
         </div>
 
-        <div style={{ marginTop: 32 }}>
-          <h3>Commented Videos</h3>
-          {loading ? <p>Loading…</p> : commentedVideos.length === 0 ? <p>No commented videos</p> : (
+        <div className="video-section">
+          <h3 className="section-title">Commented Videos</h3>
+          {loading ? <p className="loading">Loading…</p> : commentedVideos.length === 0 ? (
+            <p className="no-videos">No commented videos</p>
+          ) : (
             <div className="video-grid">
               {commentedVideos.map(v => <VideoCard key={v._id} video={v} />)}
             </div>

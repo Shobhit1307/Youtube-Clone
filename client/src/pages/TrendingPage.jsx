@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header.jsx';
-import Sidebar from '../components/Sidebar.jsx';
 import VideoCard from '../components/VideoCard.jsx';
 import apiClient from '../api/apiClient.js';
 
@@ -13,11 +12,10 @@ export default function TrendingPage() {
 
   return (
     <>
-      
+      <Header />
       <div className="app-body">
-        
-        <main className="main-content">
-          <h2>🔥 Trending Videos</h2>
+        <main className="main-content trending-page">
+          <h2 className="page-title">🔥 Trending Videos</h2>
           <div className="video-grid">
             {videos.map(v => <VideoCard key={v._id} video={v} />)}
           </div>
