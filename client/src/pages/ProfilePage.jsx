@@ -3,11 +3,12 @@ import { useSelector } from 'react-redux';
 import Header from '../components/Header.jsx';
 import apiClient from '../api/apiClient.js';
 import VideoCard from '../components/VideoCard.jsx';
+import getAvatarUrl from '../utils/getAvatarUrl.js'; // ✅ new helper
 
 export default function ProfilePage() {
   const { userInfo } = useSelector(state => state.user);
   const { myChannel } = useSelector(state => state.channel);
-  const [avatar, setAvatar] = useState(userInfo?.avatar || '');
+  const [avatar, setAvatar] = useState(getAvatarUrl(userInfo?.avatar));
   const [likedVideos, setLikedVideos] = useState([]);
   const [commentedVideos, setCommentedVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +17,7 @@ export default function ProfilePage() {
     async function fetchProfileData() {
       try {
         const res = await apiClient.get('/auth/profile');
-        setAvatar(res.data.user.avatar || '');
+        setAvatar(getAvatarUrl(res.data.user?.avatar));
         setLikedVideos(res.data.likedVideos || []);
         setCommentedVideos(res.data.commentedVideos || []);
       } catch (err) {
@@ -31,6 +32,14 @@ export default function ProfilePage() {
   const handleUpdate = async () => {
     try {
       await apiClient.put('/auth/profile', { avatar });
+
+      // ✅ Update Redux immediately so Header updates before reload
+      window.store.dispatch({
+        type: 'user/login/fulfilled',
+        payload: { ...userInfo, avatar }
+      });
+
+      // 🔄 Still reload to match your preferred flow
       window.location.reload();
     } catch (err) {
       console.error('Update avatar failed:', err);
@@ -39,11 +48,11 @@ export default function ProfilePage() {
 
   return (
     <>
-      <Header />
+      
       <div className="main-content profile-page">
         <h2 className="page-title">Your Profile</h2>
         <img
-          src={avatar || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}
+          src={getAvatarUrl(avatar)}
           alt="avatar"
           className="profile-avatar"
         />
@@ -56,14 +65,18 @@ export default function ProfilePage() {
             placeholder="Avatar URL"
             className="profile-input"
           />
-          <button onClick={handleUpdate} className="submit-button">Update Avatar</button>
+          <button onClick={handleUpdate} className="submit-button">
+            Update Avatar
+          </button>
         </div>
 
         {myChannel && (
           <div className="channel-info">
             <h3 className="section-title">Your Channel</h3>
             <p className="channel-name">Name: {myChannel.channelName}</p>
-            <p className="channel-description">Description: {myChannel.description}</p>
+            <p className="channel-description">
+              Description: {myChannel.description}
+            </p>
             {myChannel.channelBanner && (
               <img
                 src={myChannel.channelBanner}
@@ -76,22 +89,30 @@ export default function ProfilePage() {
 
         <div className="video-section">
           <h3 className="section-title">Liked Videos</h3>
-          {loading ? <p className="loading">Loading…</p> : likedVideos.length === 0 ? (
+          {loading ? (
+            <p className="loading">Loading…</p>
+          ) : likedVideos.length === 0 ? (
             <p className="no-videos">No liked videos</p>
           ) : (
             <div className="video-grid">
-              {likedVideos.map(v => <VideoCard key={v._id} video={v} />)}
+              {likedVideos.map(v => (
+                <VideoCard key={v._id} video={v} />
+              ))}
             </div>
           )}
         </div>
 
         <div className="video-section">
           <h3 className="section-title">Commented Videos</h3>
-          {loading ? <p className="loading">Loading…</p> : commentedVideos.length === 0 ? (
+          {loading ? (
+            <p className="loading">Loading…</p>
+          ) : commentedVideos.length === 0 ? (
             <p className="no-videos">No commented videos</p>
           ) : (
             <div className="video-grid">
-              {commentedVideos.map(v => <VideoCard key={v._id} video={v} />)}
+              {commentedVideos.map(v => (
+                <VideoCard key={v._id} video={v} />
+              ))}
             </div>
           )}
         </div>

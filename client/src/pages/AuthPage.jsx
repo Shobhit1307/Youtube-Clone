@@ -1,3 +1,4 @@
+// src/pages/AuthPage.jsx
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { registerUser, loginUser } from '../features/user/userSlice.js';
@@ -23,10 +24,8 @@ export default function AuthPage() {
     try {
       if (mode === 'login') {
         await dispatch(loginUser(formData)).unwrap();
-        toast.success('Logged in successfully');
       } else {
         await dispatch(registerUser(formData)).unwrap();
-        toast.success('Registered successfully');
       }
       navigate('/');
     } catch (err) {

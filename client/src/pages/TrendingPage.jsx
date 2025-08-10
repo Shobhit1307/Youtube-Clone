@@ -12,7 +12,7 @@ export default function TrendingPage() {
 
   return (
     <>
-      <Header />
+      
       <div className="app-body">
         <main className="main-content trending-page">
           <h2 className="page-title">🔥 Trending Videos</h2>

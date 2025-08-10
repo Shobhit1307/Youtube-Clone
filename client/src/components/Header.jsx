@@ -6,6 +6,7 @@ import { logout } from '../features/user/userSlice.js';
 import { persistor } from '../app/store.js';
 import apiClient from '../api/apiClient.js';
 import { getVideos } from '../features/videos/videosSlice.js';
+import getAvatarUrl from '../utils/getAvatarUrl.js'; // ✅ New helper import
 
 export default function Header({ onMenuClick }) {
   const { userInfo } = useSelector(state => state.user);
@@ -17,8 +18,6 @@ export default function Header({ onMenuClick }) {
   const [suggestions, setSuggestions] = useState({ videos: [], channels: [] });
   const [showSuggestions, setShowSuggestions] = useState(false);
   const debounceRef = useRef(null);
-
-  console.log('Rendering Header, userInfo:', userInfo);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -114,10 +113,10 @@ export default function Header({ onMenuClick }) {
       {userInfo ? (
         <div className="header-auth">
           <img
-            src={userInfo.avatar ? `/api/auth/proxy-image?url=${encodeURIComponent(userInfo.avatar)}` : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}
+            src={getAvatarUrl(userInfo.avatar)} // ✅ Cleaner
             alt="avatar"
             className="header-avatar"
-            onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; console.error('Avatar load failed:', userInfo.avatar); }}
+            onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }}
           />
           <span className="header-username">Hello, {userInfo.username}</span>
           <button onClick={handleLogout} className="header-logout-button">Logout</button>

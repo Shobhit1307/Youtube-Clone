@@ -38,6 +38,7 @@ const userSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         const payload = action.payload;
         payload._id = payload._id || payload.id || payload._id;
+        payload.avatar = payload.avatar || ''; // ✅ Always include avatar
         state.userInfo = payload;
         toast.success('Registered successfully!');
       })
@@ -47,10 +48,11 @@ const userSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         const payload = action.payload;
         payload._id = payload._id || payload.id || payload._id;
+        payload.avatar = payload.avatar || ''; // ✅ Always include avatar
         state.userInfo = payload;
         toast.success('Logged in successfully!');
 
-        // Setup auto logout timer based on token expiry
+        // Auto logout based on token expiry
         if (payload.token) {
           const decoded = jwtDecode(payload.token);
           if (decoded?.exp) {

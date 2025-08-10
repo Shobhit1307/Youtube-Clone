@@ -44,7 +44,7 @@ export default function UploadVideo() {
 
   return (
     <>
-      <Header />
+      
       <div className="main-content upload-page">
         <h2 className="page-title">Upload Video</h2>
         <div className="radio-group">

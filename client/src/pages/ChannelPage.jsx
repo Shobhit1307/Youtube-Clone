@@ -73,7 +73,7 @@ export default function ChannelPage() {
 
   return (
     <>
-      <Header />
+      
       <div className="main-content channel-page">
         {channel.channelBanner && (
           <img

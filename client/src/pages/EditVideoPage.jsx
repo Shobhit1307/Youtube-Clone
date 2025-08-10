@@ -49,7 +49,7 @@ export default function EditVideoPage() {
 
   return (
     <>
-      <Header />
+      
       <div className="main-content upload-page">
         <h2 className="page-title">Edit Video</h2>
         <form className="upload-form" onSubmit={handleSubmit}>

@@ -36,7 +36,7 @@ export default function CreateChannelPage() {
 
   return (
     <>
-      <Header />
+      
       <div className="main-content create-channel-page">
         <h2 className="page-title">Create Your Channel</h2>
         <form className="channel-form" onSubmit={handleSubmit}>

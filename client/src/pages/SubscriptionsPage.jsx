@@ -23,7 +23,7 @@ export default function SubscriptionsPage() {
 
   return (
     <>
-      <Header />
+      
       <div className="app-body">
         <main className="main-content subscriptions-page">
           <h2 className="page-title">Your Subscriptions</h2>
