@@ -1,195 +1,240 @@
-Video Subscription Backend API
-Overview
-This project is a backend RESTful API for a video subscription platform similar to YouTube. It manages users, channels, videos, and subscriptions with features such as:
+# 🎥 YouTube Clone
 
-User authentication and authorization
+A modern, full-stack video sharing platform built with React, Node.js, and MongoDB. Experience YouTube-like functionality with a clean, responsive design and smooth user interactions.
 
-Video uploading, editing, deleting
+![YouTube Clone](https://img.shields.io/badge/YouTube-Clone-red?style=for-the-badge&logo=youtube)
+![React](https://img.shields.io/badge/React-18.2.0-blue?style=for-the-badge&logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-18.0.0-green?style=for-the-badge&logo=node.js)
+![MongoDB](https://img.shields.io/badge/MongoDB-6.0.0-47A248?style=for-the-badge&logo=mongodb)
 
-Channel subscription toggling
+## ✨ Features
 
-Fetching subscribed channels with latest videos
+### 🎬 Video Management
+- **Video Upload & Streaming**: Support for MP4 videos with automatic thumbnail generation
+- **YouTube Integration**: Embed and play YouTube videos seamlessly
+- **Video Player**: Custom video player with controls and fullscreen support
+- **Video Categories**: Organize content with filterable categories
 
-Video liking and disliking
+### 👤 User Experience
+- **User Authentication**: Secure login/register with JWT tokens
+- **Profile Management**: Customizable user profiles with avatar support
+- **Channel Creation**: Users can create and manage their own channels
+- **Responsive Design**: Mobile-first design that works on all devices
 
-Trending and recommended videos based on category
+### 💬 Social Features
+- **Comments System**: Add, edit, and delete comments on videos
+- **Like/Dislike**: React to videos with like and dislike functionality
+- **Subscriptions**: Subscribe to channels and stay updated
+- **User Interactions**: Follow channels and engage with content
 
-Video view counting
+### 🎨 Modern UI/UX
+- **Dark/Light Theme**: Toggle between themes with system preference detection
+- **Smooth Animations**: Subtle hover effects and transitions
+- **Search Functionality**: Real-time search with suggestions
+- **Responsive Layout**: Adaptive design for all screen sizes
 
-The backend is built with Node.js, Express, and MongoDB (Mongoose). It serves JSON data consumed by a frontend client.
+## 🚀 Tech Stack
 
-Features
-User Management: Users can create accounts, log in, and manage subscriptions.
+### Frontend
+- **React 18** - Modern React with hooks and functional components
+- **Redux Toolkit** - State management with Redux Persist
+- **React Router** - Client-side routing and navigation
+- **Vite** - Fast build tool and development server
+- **Tailwind-inspired CSS** - Custom CSS with CSS variables and modern practices
 
-Channels: Users can create channels, upload videos to channels.
+### Backend
+- **Node.js** - JavaScript runtime environment
+- **Express.js** - Web application framework
+- **MongoDB** - NoSQL database with Mongoose ODM
+- **JWT** - JSON Web Tokens for authentication
+- **Multer** - File upload middleware
 
-Subscriptions: Users can subscribe/unsubscribe to channels.
+### Additional Tools
+- **React Icons** - Beautiful icon library
+- **React Toastify** - Toast notifications
+- **JWT Decode** - Token parsing utility
 
-Video Management: Upload videos (files or external URLs), update details, delete videos.
+## 📁 Project Structure
 
-Recommendations: Get videos recommended by category or random fallback.
+```
+Youtube-Clone/
+├── client/                 # Frontend React application
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── pages/         # Page components
+│   │   ├── features/      # Redux slices and state management
+│   │   ├── api/           # API client configuration
+│   │   ├── utils/         # Utility functions
+│   │   └── app/           # Redux store configuration
+│   ├── public/            # Static assets
+│   └── package.json       # Frontend dependencies
+├── server/                 # Backend Node.js application
+│   ├── controllers/       # Route controllers
+│   ├── models/            # MongoDB schemas
+│   ├── routes/            # API route definitions
+│   ├── middleware/        # Custom middleware
+│   ├── uploads/           # File upload directory
+│   └── package.json       # Backend dependencies
+└── README.md              # Project documentation
+```
 
-Video Interactions: Like or dislike videos.
+## 🛠️ Installation & Setup
 
-View Tracking: Video views incremented on access.
+### Prerequisites
+- Node.js (v18 or higher)
+- MongoDB (v6.0 or higher)
+- Git
 
-Secure Endpoints: Middleware ensures user authentication for protected routes.
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/youtube-clone.git
+cd youtube-clone
+```
 
-Tech Stack
-Node.js with Express.js
-
-MongoDB with Mongoose ODM
-
-JWT for authentication
-
-Multer for file uploads
-
-Environment variables for config
-
-Installation
-Prerequisites
-Node.js (v14+ recommended)
-
-MongoDB instance (local or remote)
-
-npm or yarn
-
-Steps
-Clone the repository
-
-bash
-Copy
-Edit
-git clone https://github.com/yourusername/your-repo.git
-cd your-repo
-Install dependencies
-
-bash
-Copy
-Edit
+### 2. Backend Setup
+```bash
+cd server
 npm install
-# or
-yarn install
-Configure environment variables
+```
 
-Create a .env file in the root directory with at least:
-
-env
-Copy
-Edit
+Create a `.env` file in the server directory:
+```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/yourdbname
-JWT_SECRET=your_jwt_secret_here
-SERVER_URL=http://localhost:5000
-Adjust values as per your environment.
+MONGODB_URI=mongodb://localhost:27017/youtube-clone
+JWT_SECRET=your_jwt_secret_key_here
+```
 
-Run the server
+### 3. Frontend Setup
+```bash
+cd ../client
+npm install
+```
 
-bash
-Copy
-Edit
+### 4. Start the Application
+
+**Start Backend (Terminal 1):**
+```bash
+cd server
+npm start
+```
+
+**Start Frontend (Terminal 2):**
+```bash
+cd client
 npm run dev
-# or
-node server.js
-Server will start on the specified port (default 5000).
+```
 
-API Endpoints Overview
-Authentication
-POST /api/auth/register — Register a new user
+The application will be available at:
+- Frontend: http://localhost:5173
+- Backend: http://localhost:5000
 
-POST /api/auth/login — Login and receive JWT token
+## 🔧 Configuration
 
-Channels
-GET /api/channels/:id — Get channel info and videos
+### Environment Variables
+- `PORT`: Backend server port (default: 5000)
+- `MONGODB_URI`: MongoDB connection string
+- `JWT_SECRET`: Secret key for JWT token generation
 
-POST /api/channels — Create a new channel (auth required)
+### Database Setup
+1. Install MongoDB locally or use MongoDB Atlas
+2. Create a database named `youtube-clone`
+3. Update the connection string in your `.env` file
 
-Subscriptions
-POST /api/subscriptions/:channelId — Toggle subscription (subscribe/unsubscribe) (auth required)
+## 📱 Usage
 
-GET /api/subscriptions — Get channels subscribed by logged-in user with latest videos (auth required)
+### Getting Started
+1. **Register/Login**: Create an account or sign in with existing credentials
+2. **Upload Videos**: Share your content with the community
+3. **Create Channel**: Build your personal brand
+4. **Engage**: Like, comment, and subscribe to channels
 
-Videos
-GET /api/videos — List all videos (with optional search and category filters)
+### Key Features
+- **Video Upload**: Drag and drop or select video files
+- **Search**: Find videos and channels quickly
+- **Responsive Design**: Works perfectly on mobile and desktop
+- **Theme Toggle**: Switch between light and dark modes
 
-GET /api/videos/:id — Get details of a single video (increments views)
+## 🎯 API Endpoints
 
-POST /api/videos — Upload new video (auth required)
+### Authentication
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login
+- `GET /auth/profile` - Get user profile
 
-PUT /api/videos/:id — Update video details (auth required & must be uploader)
+### Videos
+- `GET /videos` - Get all videos with filters
+- `POST /videos` - Upload new video
+- `GET /videos/:id` - Get specific video
+- `PUT /videos/:id` - Update video
+- `DELETE /videos/:id` - Delete video
 
-DELETE /api/videos/:id — Delete video (auth required & must be uploader)
+### Channels
+- `POST /channels` - Create channel
+- `GET /channels/:id` - Get channel details
+- `PUT /channels/:id` - Update channel
 
-POST /api/videos/:id/like — Like/unlike a video (auth required)
+### Comments
+- `GET /videos/:id/comments` - Get video comments
+- `POST /videos/:id/comments` - Add comment
+- `PUT /videos/:id/comments/:commentId` - Edit comment
+- `DELETE /videos/:id/comments/:commentId` - Delete comment
 
-POST /api/videos/:id/dislike — Dislike/undislike a video (auth required)
+## 🎨 Customization
 
-GET /api/videos/trending — Get top trending videos
+### Themes
+The application supports both light and dark themes:
+- Automatic theme detection based on system preferences
+- Manual theme toggle in the header
+- Persistent theme selection
 
-GET /api/videos/:id/recommended — Get recommended videos by category or fallback random
+### Styling
+- Custom CSS with CSS variables for easy theming
+- Responsive breakpoints for all devices
+- Smooth animations and transitions
 
-How to Use
-Register and login to get a JWT token.
+## 🚀 Deployment
 
-Authenticate requests by adding Authorization: Bearer <token> header to protected endpoints.
+### Frontend (Vercel/Netlify)
+```bash
+cd client
+npm run build
+# Deploy the dist folder
+```
 
-Create channels or manage existing ones.
+### Backend (Railway/Render)
+```bash
+cd server
+# Set environment variables
+# Deploy with your preferred platform
+```
 
-Upload videos to channels with file uploads or external URLs.
+## 🤝 Contributing
 
-Subscribe to channels and get personalized subscription feeds.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-Interact with videos by liking, disliking, and watching trending or recommended videos.
+## 📝 License
 
-Folder Structure
-bash
-Copy
-Edit
-/backend
-  /controllers
-    channelController.js
-    subscriptionController.js
-    videoController.js
-    userController.js
-  /models
-    Channel.js
-    User.js
-    Video.js
-  /routes
-    authRoutes.js
-    channelRoutes.js
-    subscriptionRoutes.js
-    videoRoutes.js
-  /middleware
-    authMiddleware.js
-  server.js
-.env
-package.json
-README.md
-Notes
-Ensure MongoDB is running and accessible via the URI you provide.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Use tools like Postman or Insomnia for manual API testing.
+## 🙏 Acknowledgments
 
-File uploads require proper multipart/form-data requests.
+- **React Team** - For the amazing framework
+- **Node.js Community** - For the robust runtime
+- **MongoDB** - For the flexible database
+- **Open Source Community** - For inspiration and tools
 
-The API responses are JSON; the frontend consumes these to display data.
+## 📞 Contact
 
-Error handling returns appropriate HTTP status codes and messages.
+- **GitHub**: [Shobhit1307](https://github.com/Shobhit1307)
+- **LinkedIn**: [Shobhit Jindal](https://www.linkedin.com/in/shobhit-jindal-0b96b5232)
+- **Instagram**: [shobhitjindal07](https://www.instagram.com/shobhitjindal07/profilecard/?igsh=MXVwaGE4b2Ftcng2dw==)
 
-Future Improvements
-Add pagination support on video and subscription listings.
+---
 
-Implement search suggestions and advanced filtering.
+⭐ **Star this repository if you found it helpful!**
 
-Add user profile management endpoints.
-
-Improve security with rate limiting and validation.
-
-Add automated tests for controllers and routes.
-
-#The video for working project is uploaded on the channel only you can watch their only 
-
-For contact 
-Github Profile--
-https://github.com/Shobhit1307/Youtube-Clone
+Made with ❤️ by [Your Name]

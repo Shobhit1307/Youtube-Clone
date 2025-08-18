@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import Header from './components/Header.jsx';
 import Sidebar from './components/Sidebar.jsx';
+import Footer from './components/Footer.jsx';
 
 // Lazy-loaded pages
 const HomePage = React.lazy(() => import('./pages/HomePage.jsx'));
@@ -46,6 +47,7 @@ function LayoutWrapper() {
           <Outlet />
         </main>
       </div>
+      {!hideLayout && <Footer />}
     </div>
   );
 }
@@ -64,7 +66,12 @@ export default function App() {
           closeOnClick
           pauseOnHover
           theme="colored"
-          style={{ '--toastify-color-success': '#cc0000', '--toastify-color-error': '#cc0000' }}
+          toastStyle={{
+            '--toastify-color-success': '#28a745',
+            '--toastify-color-error': '#dc3545',
+            '--toastify-color-info': '#17a2b8',
+            '--toastify-color-warning': '#ffc107'
+          }}
         />
         <Routes>
           <Route element={<LayoutWrapper />}>
