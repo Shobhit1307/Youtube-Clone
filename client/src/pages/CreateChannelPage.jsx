@@ -35,10 +35,9 @@ export default function CreateChannelPage() {
   };
 
   return (
-    <>
-      
-      <div className="main-content create-channel-page">
-        <h2 className="page-title">Create Your Channel</h2>
+    <div className="main-content create-channel-page">
+      <h2 className="page-title">Create Your Channel</h2>
+      <div className="create-channel-card-wrapper">
         <form className="channel-form" onSubmit={handleSubmit}>
           <input
             name="channelName"
@@ -66,6 +65,6 @@ export default function CreateChannelPage() {
           <button type="submit" className="submit-button">Create</button>
         </form>
       </div>
-    </>
+    </div>
   );
 }

@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import Video from '../models/Video.js';
 import Channel from '../models/Channel.js';
 
-const SERVER_URL = process.env.SERVER_URL || 'http://localhost:5000';
+// Use default with no trailing slash for consistent concatenation
+const SERVER_URL = (process.env.SERVER_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 function normalizeYouTubeURL(raw = '') {
   try {
@@ -13,6 +14,16 @@ function normalizeYouTubeURL(raw = '') {
   } catch {
     return raw.trim();
   }
+}
+
+// Helper to prefix SERVER_URL only if URL is relative (does not start with http(s) or data:)
+function prefixUrlIfNeeded(url = '') {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (/^(https?:\/\/|data:)/i.test(trimmed)) {
+    return trimmed;
+  }
+  return `${SERVER_URL}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
 }
 
 export async function getVideos(req, res) {
@@ -36,8 +47,8 @@ export async function getVideos(req, res) {
     _id: v._id,
     title: v.title,
     description: v.description,
-    videoUrl: v.videoUrl?.startsWith('http') ? v.videoUrl : `${SERVER_URL}${v.videoUrl}`,
-    thumbnailUrl: v.thumbnailUrl?.startsWith('http') ? v.thumbnailUrl : `${SERVER_URL}${v.thumbnailUrl}`,
+    videoUrl: prefixUrlIfNeeded(v.videoUrl),
+    thumbnailUrl: prefixUrlIfNeeded(v.thumbnailUrl),
     category: v.category,
     views: v.views,
     uploadDate: v.uploadDate,
@@ -75,8 +86,8 @@ export async function getVideoById(req, res) {
     _id: video._id,
     title: video.title,
     description: video.description,
-    videoUrl: video.videoUrl?.startsWith('http') ? video.videoUrl : `${process.env.SERVER_URL || 'http://localhost:5000'}${video.videoUrl}`,
-    thumbnailUrl: video.thumbnailUrl?.startsWith('http') ? video.thumbnailUrl : `${process.env.SERVER_URL || 'http://localhost:5000'}${video.thumbnailUrl}`,
+    videoUrl: prefixUrlIfNeeded(video.videoUrl),
+    thumbnailUrl: prefixUrlIfNeeded(video.thumbnailUrl),
     category: video.category,
     views: video.views,
     uploadDate: video.uploadDate,
@@ -112,13 +123,16 @@ export async function createVideo(req, res) {
   }
 
   const urlPart = filename ? `/uploads/videos/${filename}` : normalizeYouTubeURL(externalUrl);
-  const videoUrl = urlPart.startsWith('http') ? urlPart : `${SERVER_URL}${urlPart}`;
+  const videoUrl = prefixUrlIfNeeded(urlPart);
 
-  const thumbnailUrl = req.body.thumbnailUrl
+  // Thumbnail url logic
+  const thumbnailRaw = req.body.thumbnailUrl
     ? req.body.thumbnailUrl.trim()
     : req.file?.filename
-    ? `${SERVER_URL}/uploads/videos/${req.file.filename}`
+    ? `/uploads/videos/${req.file.filename}`
     : '';
+
+  const thumbnailUrl = prefixUrlIfNeeded(thumbnailRaw);
 
   const video = await Video.create({
     title: title.trim(),
@@ -224,7 +238,7 @@ export async function getTrending(req, res) {
   const sanitized = videos.map((v) => ({
     _id: v._id,
     title: v.title,
-    thumbnailUrl: v.thumbnailUrl,
+    thumbnailUrl: prefixUrlIfNeeded(v.thumbnailUrl),
     views: v.views,
     uploader: v.uploader,
     channel: v.channel,
@@ -260,8 +274,8 @@ export async function getRecommendedVideos(req, res) {
       _id: v._id,
       title: v.title,
       description: v.description,
-      videoUrl: v.videoUrl?.startsWith('http') ? v.videoUrl : `${SERVER_URL}${v.videoUrl}`,
-      thumbnailUrl: v.thumbnailUrl?.startsWith('http') ? v.thumbnailUrl : `${SERVER_URL}${v.thumbnailUrl}`,
+      videoUrl: prefixUrlIfNeeded(v.videoUrl),
+      thumbnailUrl: prefixUrlIfNeeded(v.thumbnailUrl),
       category: v.category,
       views: v.views,
       uploadDate: v.uploadDate,

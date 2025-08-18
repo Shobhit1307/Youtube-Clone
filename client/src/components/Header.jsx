@@ -1,3 +1,4 @@
+// src/components/Header.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -6,7 +7,7 @@ import { logout } from '../features/user/userSlice.js';
 import { persistor } from '../app/store.js';
 import apiClient from '../api/apiClient.js';
 import { getVideos } from '../features/videos/videosSlice.js';
-import getAvatarUrl from '../utils/getAvatarUrl.js'; // ✅ New helper import
+import getAvatarUrl from '../utils/getAvatarUrl.js';
 
 export default function Header({ onMenuClick }) {
   const { userInfo } = useSelector(state => state.user);
@@ -36,11 +37,9 @@ export default function Header({ onMenuClick }) {
 
   useEffect(() => {
     if (!term.trim()) {
-      setSuggestions({ videos: [], channels: [] });
       setShowSuggestions(false);
       return;
     }
-
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       try {
@@ -51,7 +50,6 @@ export default function Header({ onMenuClick }) {
         console.error('Search suggestion error', err);
       }
     }, 250);
-
     return () => clearTimeout(debounceRef.current);
   }, [term]);
 
@@ -67,12 +65,21 @@ export default function Header({ onMenuClick }) {
     navigate(`/channel/${id}`);
   }
 
+  // Theme toggle handler
+  const toggleTheme = () => {
+    const current = document.documentElement.dataset.theme;
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('theme', next);
+  };
+
   return (
     <header className="header">
       <button className="menu-btn" onClick={onMenuClick}>
         <FiMenu size={22} />
       </button>
       <Link to="/" className="logo">YouTubeClone</Link>
+
       {!hideSearch && (
         <form className="header-search" onSubmit={handleSearch} autoComplete="off">
           <input
@@ -84,9 +91,9 @@ export default function Header({ onMenuClick }) {
             className="header-search-input"
           />
           <button type="submit" className="header-search-button">Search</button>
-          {showSuggestions && (suggestions.videos?.length || suggestions.channels?.length) && (
+          {showSuggestions && (suggestions.videos.length || suggestions.channels.length) && (
             <div className="search-suggestions">
-              {suggestions.videos?.length > 0 && (
+              {suggestions.videos.length > 0 && (
                 <>
                   <div className="suggestion-header">Videos</div>
                   {suggestions.videos.map(v => (
@@ -96,7 +103,7 @@ export default function Header({ onMenuClick }) {
                   ))}
                 </>
               )}
-              {suggestions.channels?.length > 0 && (
+              {suggestions.channels.length > 0 && (
                 <>
                   <div className="suggestion-header">Channels</div>
                   {suggestions.channels.map(c => (
@@ -110,20 +117,37 @@ export default function Header({ onMenuClick }) {
           )}
         </form>
       )}
-      {userInfo ? (
-        <div className="header-auth">
-          <img
-            src={getAvatarUrl(userInfo.avatar)} // ✅ Cleaner
-            alt="avatar"
-            className="header-avatar"
-            onError={(e) => { e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; }}
-          />
-          <span className="header-username">Hello, {userInfo.username}</span>
-          <button onClick={handleLogout} className="header-logout-button">Logout</button>
+
+      <div className="header-actions">
+        {/* Theme toggle button */}
+        <button
+          onClick={toggleTheme}
+          className="theme-toggle-btn"
+          aria-label="Toggle light/dark theme"
+        >
+          {/* Use an emoji or SVG icon */}
+          🌓
+        </button>
         </div>
-      ) : (
-        <Link to="/auth" className="header-auth-link">Sign In</Link>
-      )}
+
+        {userInfo ? (
+          <div className="header-auth">
+            <img
+              src={getAvatarUrl(userInfo.avatar)}
+              alt="avatar"
+              className="header-avatar"
+              onError={e => (e.target.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png')}
+            />
+            <span className="header-username">Hello, {userInfo.username}</span>
+            <button onClick={handleLogout} className="header-logout-button">Logout</button>
+          </div>
+        ) : (
+          <div>
+            <Link to="/auth" className="header-auth-link">Sign In</Link>
+          </div>
+          
+        )}
+      
     </header>
   );
 }

@@ -56,7 +56,11 @@ export const getSubscribedChannels = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate({
       path: 'subscriptions',
-      populate: { path: 'videos', options: { sort: { uploadDate: -1 }, limit: 4 } }
+      populate: {
+        path: 'videos',
+        options: { sort: { uploadDate: -1 }, limit: 4 },
+        populate: { path: 'uploader', select: 'username' } // Add this to populate uploader
+      }
     });
 
     const subs = (user.subscriptions || []).map(c => ({
@@ -68,7 +72,8 @@ export const getSubscribedChannels = async (req, res) => {
       videos: (c.videos || []).map(v => ({
         _id: v._id,
         title: v.title,
-        thumbnailUrl: v.thumbnailUrl
+        thumbnailUrl: v.thumbnailUrl,
+        uploader: v.uploader, // Include uploader here
       }))
     }));
 
@@ -78,3 +83,4 @@ export const getSubscribedChannels = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+

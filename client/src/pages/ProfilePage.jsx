@@ -12,6 +12,7 @@ export default function ProfilePage() {
   const [likedVideos, setLikedVideos] = useState([]);
   const [commentedVideos, setCommentedVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAvatarForm, setShowAvatarForm] = useState(false); // NEW
 
   useEffect(() => {
     async function fetchProfileData() {
@@ -48,7 +49,6 @@ export default function ProfilePage() {
 
   return (
     <>
-      
       <div className="main-content profile-page">
         <h2 className="page-title">Your Profile</h2>
         <img
@@ -57,18 +57,34 @@ export default function ProfilePage() {
           className="profile-avatar"
         />
         <p className="profile-username">Username: {userInfo?.username}</p>
-        <div className="profile-form">
-          <input
-            type="text"
-            value={avatar}
-            onChange={e => setAvatar(e.target.value)}
-            placeholder="Avatar URL"
-            className="profile-input"
-          />
-          <button onClick={handleUpdate} className="submit-button">
+        {!showAvatarForm ? (
+          <button
+            className="submit-button"
+            onClick={() => setShowAvatarForm(true)}
+          >
             Update Avatar
           </button>
-        </div>
+        ) : (
+          <div className="profile-form">
+            <input
+              type="text"
+              value={avatar}
+              onChange={e => setAvatar(e.target.value)}
+              placeholder="Avatar URL"
+              className="profile-input"
+            />
+            <button onClick={handleUpdate} className="submit-button">
+              Save
+            </button>
+            <button
+              className="cancel-button"
+              onClick={() => setShowAvatarForm(false)}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
 
         {myChannel && (
           <div className="channel-info">

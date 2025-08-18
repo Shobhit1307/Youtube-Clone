@@ -1,3 +1,4 @@
+// src/App.jsx
 import React from 'react';
 import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -7,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Header from './components/Header.jsx';
 import Sidebar from './components/Sidebar.jsx';
 
+// Lazy-loaded pages
 const HomePage = React.lazy(() => import('./pages/HomePage.jsx'));
 const VideoPlayer = React.lazy(() => import('./pages/VideoPlayer.jsx'));
 const ChannelPage = React.lazy(() => import('./pages/ChannelPage.jsx'));
@@ -23,16 +25,28 @@ function LayoutWrapper() {
   const hideLayout = location.pathname === '/auth';
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
+  // On initial render, apply theme from localStorage or system preference
+  React.useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      document.documentElement.dataset.theme = saved;
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.dataset.theme = 'dark';
+    } else {
+      document.documentElement.dataset.theme = 'light';
+    }
+  }, []);
+
   return (
-    <>
+    <div className="app-layout">
       {!hideLayout && <Header onMenuClick={() => setSidebarOpen(prev => !prev)} />}
-      <div className="app-body">
-        {!hideLayout && sidebarOpen && <Sidebar />}
+      <div className={`app-body ${sidebarOpen ? 'sidebar-open' : 'sidebar-collapsed'}`}>
+        {!hideLayout && <Sidebar isOpen={sidebarOpen} />}
         <main className="main-content">
           <Outlet />
         </main>
       </div>
-    </>
+    </div>
   );
 }
 
